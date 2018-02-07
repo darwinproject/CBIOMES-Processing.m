@@ -13,7 +13,7 @@ function [out]=llc90drwn3_ptrplot(iPtr,plotName,doPrint);
 
 %%
 
-if isempty(whos('iPtr')); iPtr=35; end;
+if isempty(whos('iPtr')); iPtr=21; end;
 if isempty(whos('plotName')); plotName=''; end;
 if isempty(whos('doPrint')); doPrint=0; end;
 
@@ -34,10 +34,6 @@ if isempty(glo_interp)&~isempty(strfind(plotName,'map'));
   fprintf('one-time initialization of gcmfaces_interp_coeffs: end\n');
 end;
 
-if isempty(whos('iPtr'));
-   iPtr=21;
-end;
-
 %% load time-mean 3D field
 
 dirIn='./';
@@ -49,6 +45,10 @@ else; %or using time mean computed earlier by llc90drwn3_ptravrg.m
   fld=read_bin([dirIn 'diags_mean/' sprintf('ptr%03d.bin',iPtr)]);
   fld=mygrid.mskC.*fld;
 end;
+
+%% change units from mmol C/m^3 to mg C/m^3
+
+fld=12*fld;
 
 %% compute top 50m average
 
@@ -67,7 +67,10 @@ if strcmp(plotName,'top50map');
   %
   fld_log=fld_interp; fld_log(fld_log<0)=NaN; fld_log=log10(fld_log);
   %
-  figure; pcolor(lon,lat,fld_log); caxis([-3 0.5]); colorbar; shading flat;
+  x=circshift(lon,[320 0]); x(1:320,:)=x(1:320,:)-360;
+  y=circshift(lat,[320 0]); z=circshift(fld_log,[320 0]);
+  figure; pcolor(x,y,z); aa=text(50-360,50,sprintf('c%02d',iPtr-20),'FontSize',24);
+  caxis([-2 1.2]); colormap(jet(16)); colorbar; shading flat;
   %
   if doPrint; 
     eval(['print -djpeg90 ' dirIn 'diags_plot/' sprintf('top50map_%03d.bin',iPtr) '.jpg;']); 
