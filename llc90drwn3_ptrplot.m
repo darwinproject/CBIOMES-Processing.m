@@ -76,7 +76,7 @@ if strcmp(plotName,'top50map');
   text(50-360,50,sprintf('c%02d',iPtr-20),'Color','m','FontSize',24);
   %
   if doPrint; 
-    eval(['print -djpeg90 ' dirIn 'diags_plot/' sprintf('top50map_%03d.bin',iPtr) '.jpg;']); 
+    eval(['print -djpeg90 ' dirIn 'diags_plot/' sprintf('top50map_%03d',iPtr) '.jpg;']); 
   end;
 end;
 
@@ -91,7 +91,7 @@ if strcmp(plotName,'sec158W');
   text(50,-250,sprintf('c%02d',iPtr-20),'Color','m','FontSize',24); 
   %
   if doPrint;
-    eval(['print -djpeg90 ' dirIn 'diags_plot/' sprintf('sec158W_%03d.bin',iPtr) '.jpg;']);
+    eval(['print -djpeg90 ' dirIn 'diags_plot/' sprintf('sec158W_%03d',iPtr) '.jpg;']);
   end;
 end;
  
