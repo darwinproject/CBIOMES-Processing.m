@@ -17,6 +17,9 @@ if isempty(whos('iPtr')); iPtr=21; end;
 if isempty(whos('plotName')); plotName=''; end;
 if isempty(whos('doPrint')); doPrint=0; end;
 
+eps=1e-6;
+bot=1e-2;
+
 %%
 
 if isempty(which('gcmfaces')); p = genpath('gcmfaces/'); addpath(p); end;
@@ -65,12 +68,12 @@ if strcmp(plotName,'top50map');
   %
   fld_interp=reshape(tmp1./tmp0,size(lon));
   %
-  fld_log=fld_interp; fld_log(fld_log<0)=NaN; fld_log=log10(fld_log);
+  fld_log=fld_interp; fld_log(fld_log<bot)=bot; fld_log=log10(fld_log);
   %
   x=circshift(lon,[320 0]); x(1:320,:)=x(1:320,:)-360;
   y=circshift(lat,[320 0]); z=circshift(fld_log,[320 0]);
-  figure; pcolor(x,y,z); aa=text(50-360,50,sprintf('c%02d',iPtr-20),'FontSize',24);
-  caxis([-2 1.2]); colormap(jet(16)); colorbar; shading flat;
+  figure; contourf(x,y,z,[-2:0.2:1.2]); colorbar;
+  text(50-360,50,sprintf('c%02d',iPtr-20),'Color','m','FontSize',24);
   %
   if doPrint; 
     eval(['print -djpeg90 ' dirIn 'diags_plot/' sprintf('top50map_%03d.bin',iPtr) '.jpg;']); 
@@ -81,11 +84,11 @@ end;
 
 if strcmp(plotName,'sec158W');
   [LO,LA,fld_section,X,Y]=gcmfaces_section([-158 -158],[-89 90],fld);
-  log_section=fld_section; log_section(log_section<0)=NaN; 
+  log_section=fld_section; log_section(log_section<bot)=bot; 
   log_section=log10(log_section);
   %  
-  figureL; pcolor(X,Y,log_section); shading flat; 
-  axis([20 55 -300 0]); caxis([-2 1.2]); colorbar;
+  figureL; contourf(X,Y,log_section,[-2:0.2:1.2]); axis([20 55 -300 0]); colorbar;
+  text(50,-250,sprintf('c%02d',iPtr-20),'Color','m','FontSize',24); 
   %
   if doPrint;
     eval(['print -djpeg90 ' dirIn 'diags_plot/' sprintf('sec158W_%03d.bin',iPtr) '.jpg;']);
