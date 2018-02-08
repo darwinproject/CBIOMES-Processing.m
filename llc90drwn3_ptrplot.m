@@ -40,12 +40,13 @@ end;
 %% load time-mean 3D field
 
 dirIn='./';
+extIn='';
 
 if 0; %either using 3-daily output directly
   fld=mean(rdmds([dirIn 'diags/ptr'],NaN,'rec',iPtr),4);
   fld=mygrid.mskC.*convert2gcmfaces(fld);
 else; %or using time mean computed earlier by llc90drwn3_ptravrg.m 
-  fld=read_bin([dirIn 'diags_mean/' sprintf('ptr%03d.bin',iPtr)]);
+  fld=read_bin([dirIn 'diags_mean' extIn '/' sprintf('ptr%03d.bin',iPtr)]);
   fld=mygrid.mskC.*fld;
 end;
 
@@ -76,7 +77,7 @@ if strcmp(plotName,'top50map');
   text(50-360,50,sprintf('c%02d',iPtr-20),'Color','m','FontSize',24);
   %
   if doPrint; 
-    eval(['print -djpeg90 ' dirIn 'diags_plot/' sprintf('top50map_%03d',iPtr) '.jpg;']); 
+    eval(['print -djpeg90 ' dirIn 'diags_plot' extIn '/' sprintf('top50map_%03d',iPtr) '.jpg;']); 
   end;
 end;
 
@@ -91,7 +92,7 @@ if strcmp(plotName,'sec158W');
   text(50,-250,sprintf('c%02d',iPtr-20),'Color','m','FontSize',24); 
   %
   if doPrint;
-    eval(['print -djpeg90 ' dirIn 'diags_plot/' sprintf('sec158W_%03d',iPtr) '.jpg;']);
+    eval(['print -djpeg90 ' dirIn 'diags_plot' extIn '/' sprintf('sec158W_%03d',iPtr) '.jpg;']);
   end;
 end;
  
