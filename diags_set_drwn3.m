@@ -1,6 +1,6 @@
 
 if userStep==1;%diags to be computed
-    listDiags='ptrZm trpTop50m ptr158W ptrNorth ptrSouth ptrGlo';
+    listDiags='ptrZm ptrTop50m ptr158W ptrNorth ptrSouth ptrGlo';
 elseif userStep==2;%input files and variables
     listFlds={};
     for kk=1:99; listFlds={listFlds{:},sprintf('TRAC%02d',kk)}; end;
@@ -20,7 +20,7 @@ elseif userStep==3;%computational part;
     volGlo=mk3D(mygrid.DRF,mygrid.mskC).*mygrid.hFacC.*mk3D(mygrid.RAC,mygrid.mskC);;
     
     %compute zonal means, sections, layers:
-    ptrZm=zeros(nl,nr,106); trpTop50m=repmat(0*mygrid.Depth,[1 1 106]); ptr158W=zeros(321,nr,106);
+    ptrZm=zeros(nl,nr,106); ptrTop50m=repmat(0*mygrid.Depth,[1 1 106]); ptr158W=zeros(321,nr,106);
     ptrNorth=zeros(nr,106); ptrSouth=zeros(nr,106); ptrGlo=zeros(nr,106);
     for kk=1:106;
         fprintf([listFlds{kk} '...\n']);
@@ -28,7 +28,7 @@ elseif userStep==3;%computational part;
         fld=eval(listFlds{kk});
         ptrZm(:,:,kk)=calc_zonmean_T(fld);
         %
-        trpTop50m(:,:,kk)=nansum(w50m.*fld,3)./nansum(w50m,3);
+        ptrTop50m(:,:,kk)=nansum(w50m.*fld,3)./nansum(w50m,3);
         %
         [LO,LA,tmp1,X,Y]=gcmfaces_section([-158 -158],[-89 90],fld);
         ptr158W(:,:,kk)=tmp1;
@@ -67,7 +67,7 @@ elseif userStep==-1;%plotting
         cc=round([-2:0.2:1.2]*10)/10; bot=10^(cc(1)-2);
         nrec=1+diff(myparms.recInAve);
         for mm=1:12;
-            fld=sum(mean(alldiag.trpTop50m(:,:,21:55,mm:12:nrec),4),3); 
+            fld=sum(mean(alldiag.ptrTop50m(:,:,21:55,mm:12:nrec),4),3); 
             fld(fld<bot)=bot; fld=log10(fld);
             figureL; m_map_gcmfaces(fld,1.2,{'myCaxis',cc},{'myCmap','inferno'});
             myCaption={['phyto-plankton -- log10[C] where C is the month nb ' num2str(mm)  ' mean, top 50m average (in mgC/m3)']};
@@ -75,7 +75,7 @@ elseif userStep==-1;%plotting
         end;
         %
         for mm=1:12;
-            fld=sum(mean(alldiag.trpTop50m(:,:,56:71,mm:12:nrec),4),3); 
+            fld=sum(mean(alldiag.ptrTop50m(:,:,56:71,mm:12:nrec),4),3); 
             fld(fld<bot)=bot; fld=log10(fld);
             figureL; m_map_gcmfaces(fld,1.2,{'myCaxis',cc},{'myCmap','inferno'});
             myCaption={['zoo-plankton -- log10[C] where C is the month nb ' num2str(mm)  ' mean, top 50m average (in mgC/m3)']};
@@ -87,7 +87,7 @@ elseif userStep==-1;%plotting
         if addToTex; write2tex(fileTex,1,'Top 50m biomass (plankton types)',2); end;
         cc=round([-2:0.2:1.2]*10)/10; bot=10^(cc(1)-2);
         for iPtr=21:71;
-            fld=mean(alldiag.trpTop50m(:,:,iPtr,:),4); fld(fld<bot)=bot; fld=log10(fld);
+            fld=mean(alldiag.ptrTop50m(:,:,iPtr,:),4); fld(fld<bot)=bot; fld=log10(fld);
             figureL; m_map_gcmfaces(fld,1.2,{'myCaxis',cc},{'myCmap','inferno'});
             myCaption={['log10[C] where C is the annual mean, top 50m average of ' sprintf('c%02d',iPtr-20) ' (in mgC/m3)']};
             if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
