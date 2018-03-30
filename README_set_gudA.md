@@ -1,6 +1,6 @@
 This document outlines how the `gcmfaces` toolbox can can be used to analyze `MITgcm` output. It is associated with the `diags_set_gudA.m` file found in the same repository.
 
-###1) Install Software As Needed
+### 1) Install Software As Needed
 
 User who may have already obtained, and maybe re-organized, the needed software should skip this part. Otherwise, you may proceed as follows. First, go to your model output directory and install software:  
 
@@ -14,7 +14,7 @@ git clone https://github.com/DrosteEffect/Colormaps-from-MatPlotLib2.0
 
 The model output directory should also contain the grid output. For the ECCO v4 model setup, grid output is available online in netcdf format (see section 1 in [this online documentation](http://gcmfaces.readthedocs.io/en/latest/)). Along with the other familiar `MITgcm` grids that have been used within `gcmfaces`, the `ECCOv4` grid is also available in binary format via [this ftp server](ftp://mit.ecco-group.org/ecco_for_las/version_4/grids/grids_output/).
 
-###2) Interactively Analyze Output
+### 2) Interactively Analyze Output
 
 In the basic example below, we first load model output for Primary Production (units: `mmolC/m^3/s`) using `Matlab` (or `Octave`) and the `gcmfaces` toolbox. 
 
@@ -43,7 +43,7 @@ figureL; m_map_gcmfaces(fld,1.2,{'myCmap','inferno'});
 
 ```
 
-###3) The Standard Analysis Framework
+### 3) The Standard Analysis Framework
 
 The `gcmfaces` standard analysis framework offers a slightly more advanced, systematic approach to model diagnostics ([documented here](http://gcmfaces.readthedocs.io/en/latest/)). For various diagnostic sets (e.g., `diags_set_gudA.m` below), `diags_driver.m` will process each monthly record, one at a time, and save results to a subdirectory within `dirMat` (e.g., 12 files will be created in the case of a climatology).
 
@@ -73,7 +73,7 @@ Once the computational phase has completed, results can be displayed using `diag
     diags_driver_tex(dirMat,{setDiags},dirTex,nameTex);
 ```
 
-###4) Develop New Diagnostic Sets:
+### 4) Develop New Diagnostic Sets:
 
 In the following "XYZ" serves as a placeholder -- make sure to choose a more descriptive name for your new set of diagnostics. In a terminal window, one may then start as follows:
 
@@ -84,7 +84,7 @@ mv tmp_code_devel/diags_set_user.m tmp_code_devel/diags_set_XYZ.m
 
 Edit `diags_set_XYZ.m` to replace "user" with "XYZ" throughout. It can then be invoked via `diags_driver.m` and `diags_driver_tex.m` as explained above but with `setDiags` set to `'XYZ'`. The original exectution of `diags_driver.m` and `diags_driver_tex.m` will prompt you to edit `diags_set_XYZ.m` for each of four "userStep". Tip: look at `diags_set_gudA.m` for working examples. 
 
-###5) Develop And Share Codes Via GitHub:
+### 5) Develop And Share Codes Via GitHub:
 
 Once your new set of diagnostics is at least partly implemented, uploading it to GitHub will make it available to collaborators. For example, again using "XYZ" as a placeholder, this can be done at the command line of a terminal window by typing:
 
