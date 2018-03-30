@@ -12,7 +12,7 @@ git clone https://github.com/darwinproject/tmp_code_devel
 git clone https://github.com/DrosteEffect/Colormaps-from-MatPlotLib2.0
 ```
 
-The model output directory should also contain the grid output. For the ECCO v4 model setup, grid output is available online in netcdf format (see section 1 in [this online documentation](http://gcmfaces.readthedocs.io/en/latest/)). Along with the other familiar `MITgcm` grids that have been used within `gcmfaces`, the `ECCOv4` grid is also available in binary format via [this ftp server](ftp://mit.ecco-group.org/ecco_for_las/version_4/grids/grids_output/).
+The model output directory should also contain the grid output. For the ECCO v4 model setup, grid output is available online in netcdf format (see section 1 in [this online documentation](http://gcmfaces.readthedocs.io/en/latest/)). Along with the other familiar `MITgcm` grids that have been used within `gcmfaces`, it is also available in binary format (see `ftp://mit.ecco-group.org/ecco_for_las/version_4/grids/grids_output/`).
 
 ### 2) Interactively Analyze Output
 
