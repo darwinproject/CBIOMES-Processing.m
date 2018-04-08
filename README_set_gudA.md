@@ -5,14 +5,14 @@ This document outlines how the `gcmfaces` toolbox can can be used to analyze `MI
 User who may have already obtained, and maybe re-organized, the needed software should skip this part. Otherwise, you may proceed as follows. First, go to your model output directory and install software:  
 
 - Install `gcmfaces` and `m_map` as explained in [this documentation](http://gcmfaces.readthedocs.io/en/latest/prep_install.html#install-software/).
-- Download codes from the `MIT Darwin Project` and `MatPlotLib` as shown below.
+- Download codes from the `MIT Darwin Project` and `MatPlotLib` as follows.
 
 ```
 git clone https://github.com/darwinproject/tmp_code_devel
 git clone https://github.com/DrosteEffect/Colormaps-from-MatPlotLib2.0
 ```
 
-The model output directory should also contain the grid output. For the ECCO v4 model setup, grid output is available for download in netcdf format (e.g., [see here](http://gcmfaces.readthedocs.io/en/latest/prep_install.html)). Along with the other familiar `MITgcm` grids that have been used within `gcmfaces`, it is also available in binary format, e.g., via [this server](http://mit.ecco-group.org/opendap/ecco_for_las/version_4/grids/grids_output/).
+The `dirModel ` model output directory should contain the grid output and the `diags/` subdirectory. For the ECCO v4 model setup, grid output is available for download in netcdf format (e.g., [see here](http://gcmfaces.readthedocs.io/en/latest/prep_install.html)). The various `MITgcm` grids that have been used within `gcmfaces` are also available in binary format, e.g., via [this server](http://mit.ecco-group.org/opendap/ecco_for_las/version_4/grids/grids_output/).
 
 ### 2) Interactively Analyze Output
 
