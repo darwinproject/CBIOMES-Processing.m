@@ -1,6 +1,6 @@
-function [fld,fldName]=extract_variable_155W(iFld,iFile);
-% [fld,fldName]=extract_variable_155W(iFile,iFld);
-% Extracts one variable (iFld) from one set of files (iFile between 1 and 4).
+function [fld,fldName]=read_slice_155W(iFld,iFile);
+% [fld,fldName]=read_slice_155W(iFile,iFld);
+% Reads one variable (iFld) from one set of files (iFile between 1 and 4).
 %   state_3d_set1_155W/  <-> iFile=1
 %   gud_3d_set1_155W/    <-> iFile=2
 %   ptr_3d_set_155W/1    <-> iFile=3		
