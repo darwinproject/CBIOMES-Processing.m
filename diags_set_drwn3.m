@@ -2,12 +2,9 @@
 if userStep==1;%diags to be computed
     listDiags='ptrZm ptrTop50m ptr158W ptrNorth ptrSouth ptrGlo';
 elseif userStep==2;%input files and variables
-    listFlds={};
-    for kk=1:99; listFlds={listFlds{:},sprintf('TRAC%02d',kk)}; end;
-    listFlds={listFlds{:},'TRAC0a','TRAC0b','TRAC0c','TRAC0d','TRAC0e','TRAC0f','TRAC0g'};
-    listFldsNames=deblank(listFlds);
+    listFlds=PTRACERS_varnames; listFldsNames=listFlds;
     listFiles={'ptr_3d_set1'};
-    listSubdirs={[dirModel 'diags/']};
+    listSubdirs={[dirModel 'diags_ptr/'],[dirModel 'diags/']};
 elseif userStep==3;%computational part;
     
     %preliminary steps:
@@ -89,7 +86,8 @@ elseif userStep==-1;%plotting
         for iPtr=21:71;
             fld=mean(alldiag.ptrTop50m(:,:,iPtr,:),4); fld(fld<bot)=bot; fld=log10(fld);
             figureL; m_map_gcmfaces(fld,1.2,{'myCaxis',cc},{'myCmap','inferno'});
-            myCaption={['log10[C] where C is the annual mean, top 50m average of ' sprintf('c%02d',iPtr-20) ' (in mgC/m3)']};
+            myCaption={['log10[C] where C is the annual mean, top 50m average ' ...
+                        ' of ' PTRACERS_names(iPtr) ' (in ' PTRACERS_units(iPtr) ')']};
             if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
         end;
     end;
@@ -129,7 +127,8 @@ elseif userStep==-1;%plotting
             fld(fld<bot)=bot; fld=log10(fld);
             figureL; set(gcf,'Renderer','zbuffer'); pcolor(X,Y,fld); 
             shading interp; axis([20 55 -300 0]); gcmfaces_cmap_cbar(cc,{'myCmap','inferno'});
-            myCaption={['log10[C] where C is the annual mean of ' sprintf('c%02d',iPtr-20) ' at 158W (in mgC/m3)']};
+            myCaption={['log10[C] where C is the annual mean ' ...
+                        ' of ' PTRACERS_names(iPtr) ' at 158W (in ' PTRACERS_units(iPtr) ')']};
             if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
         end;
     end;
@@ -169,7 +168,8 @@ elseif userStep==-1;%plotting
             fld(fld<bot)=bot; fld=log10(fld);
             figureL; set(gcf,'Renderer','zbuffer'); pcolor(X,Y,fld); 
             shading interp; axis([-90 90 -300 0]); gcmfaces_cmap_cbar(cc,{'myCmap','inferno'});
-            myCaption={['log10[C] where C is the annual mean, zonal mean of ' sprintf('c%02d',iPtr-20) ' (in mgC/m3)']};
+            myCaption={['log10[C] where C is the annual mean, zonal mean ' ...
+                        ' of ' PTRACERS_names(iPtr) ' (in ' PTRACERS_units(iPtr) ')']};
             if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
         end;
     end;

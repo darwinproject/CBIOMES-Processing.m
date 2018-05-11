@@ -20,7 +20,7 @@ if strcmp(setDiags,'gudA')&userStep==2;%input files and variables
     listFlds={'PP','Nfix','Denit','PAR','PARF'};
     listFldsNames=deblank(listFlds);
     listFiles={'gud_3d_set1'};
-    listSubdirs={[dirModel 'diags/']};
+    listSubdirs={[dirModel 'diags_gud/'],[dirModel 'diags/']};
 end;
 
 if strcmp(setDiags,'gudA')&userStep==3;%computational part;
