@@ -106,7 +106,7 @@ elseif userStep==-1;%plotting
             fld=sum(alldiag.ptrTop50m(:,:,21:55,ssn),3); 
             fld(fld<bot)=bot; fld=log10(fld);
             figureL; m_map_gcmfaces(fld,1.2,{'myCaxis',cc},{'myCmap','inferno'});
-            myCaption={['phyto-plankton -- log10[C] where C is the ' ssnName{ssn} ' mean, top 50m average (in mgC/m3)']};
+            myCaption={['phyto-plankton -- log10(C) where C is the ' ssnName{ssn} ' mean, top 50m average (in mgC/m3)']};
             if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
         end;
         %
@@ -114,7 +114,7 @@ elseif userStep==-1;%plotting
             fld=sum(alldiag.ptrTop50m(:,:,56:71,ssn),3);
             fld(fld<bot)=bot; fld=log10(fld);
             figureL; m_map_gcmfaces(fld,1.2,{'myCaxis',cc},{'myCmap','inferno'});
-            myCaption={['zoo-plankton -- log10[C] where C is the ' ssnName{ssn} ' mean, top 50m average (in mgC/m3)']};
+            myCaption={['zoo-plankton -- log10(C) where C is the ' ssnName{ssn} ' mean, top 50m average (in mgC/m3)']};
             if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
         end;
     end;
@@ -125,7 +125,7 @@ elseif userStep==-1;%plotting
         for iPtr=21:71;
             fld=mean(alldiag.ptrTop50m(:,:,iPtr,:),4); fld(fld<bot)=bot; fld=log10(fld);
             figureL; m_map_gcmfaces(fld,1.2,{'myCaxis',cc},{'myCmap','inferno'});
-            myCaption={['log10[C] where C is the annual mean, top 50m average ' ...
+            myCaption={['log10(C) where C is the annual mean, top 50m average ' ...
                         ' of ' PTRACERS_names(iPtr) ' (in ' PTRACERS_units(iPtr) ')']};
             if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
         end;
@@ -142,7 +142,7 @@ elseif userStep==-1;%plotting
             fld(fld<bot)=bot; fld=log10(fld);
             figureL; set(gcf,'Renderer','zbuffer'); pcolor(X,Y,fld); 
             shading interp; axis([20 55 -300 0]); gcmfaces_cmap_cbar(cc,{'myCmap','inferno'});
-            myCaption={['phyto-plankton -- log10[C] where C is the ' ssnName{ssn} ' mean at 158W (in mgC/m3)']};
+            myCaption={['phyto-plankton -- log10(C) where C is the ' ssnName{ssn} ' mean at 158W (in mgC/m3)']};
             if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
         end;
         %
@@ -151,7 +151,7 @@ elseif userStep==-1;%plotting
             fld(fld<bot)=bot; fld=log10(fld);
             figureL; set(gcf,'Renderer','zbuffer'); pcolor(X,Y,fld); 
             shading interp; axis([20 55 -300 0]); gcmfaces_cmap_cbar(cc,{'myCmap','inferno'});
-            myCaption={['zoo-plankton -- log10[C] where C is the ' ssnName{ssn} ' mean at 158W (in mgC/m3)']};
+            myCaption={['zoo-plankton -- log10(C) where C is the ' ssnName{ssn} ' mean at 158W (in mgC/m3)']};
             if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
         end;
     end;
@@ -165,7 +165,7 @@ elseif userStep==-1;%plotting
             fld(fld<bot)=bot; fld=log10(fld);
             figureL; set(gcf,'Renderer','zbuffer'); pcolor(X,Y,fld); 
             shading interp; axis([20 55 -300 0]); gcmfaces_cmap_cbar(cc,{'myCmap','inferno'});
-            myCaption={['log10[C] where C is the annual mean ' ...
+            myCaption={['log10(C) where C is the annual mean ' ...
                         ' of ' PTRACERS_names(iPtr) ' at 158W (in ' PTRACERS_units(iPtr) ')']};
             if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
         end;
@@ -182,7 +182,7 @@ elseif userStep==-1;%plotting
             fld(fld<bot)=bot; fld=log10(fld);
             figureL; set(gcf,'Renderer','zbuffer'); pcolor(X,Y,fld); 
             shading interp; axis([-90 90 -300 0]); gcmfaces_cmap_cbar(cc,{'myCmap','inferno'});
-            myCaption={['phyto-plankton -- log10[C] where C is the ' ssnName{ssn} ' mean, annual mean (in mgC/m3)']};
+            myCaption={['phyto-plankton -- log10(C) where C is the ' ssnName{ssn} ' mean, annual mean (in mgC/m3)']};
             if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
         end;
         %
@@ -191,7 +191,7 @@ elseif userStep==-1;%plotting
             fld(fld<bot)=bot; fld=log10(fld);
             figureL; set(gcf,'Renderer','zbuffer'); pcolor(X,Y,fld); 
             shading interp; axis([-90 90 -300 0]); gcmfaces_cmap_cbar(cc,{'myCmap','inferno'});
-            myCaption={['zoo-plankton -- log10[C] where C is the ' ssnName{ssn} ' mean, annual mean (in mgC/m3)']};
+            myCaption={['zoo-plankton -- log10(C) where C is the ' ssnName{ssn} ' mean, annual mean (in mgC/m3)']};
             if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
         end;
     end;
@@ -205,7 +205,7 @@ elseif userStep==-1;%plotting
             fld(fld<bot)=bot; fld=log10(fld);
             figureL; set(gcf,'Renderer','zbuffer'); pcolor(X,Y,fld); 
             shading interp; axis([-90 90 -300 0]); gcmfaces_cmap_cbar(cc,{'myCmap','inferno'});
-            myCaption={['log10[C] where C is the annual mean, zonal mean ' ...
+            myCaption={['log10(C) where C is the annual mean, zonal mean ' ...
                         ' of ' PTRACERS_names(iPtr) ' (in ' PTRACERS_units(iPtr) ')']};
             if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
         end;
