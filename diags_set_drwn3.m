@@ -38,6 +38,55 @@ elseif userStep==3;%computational part;
     
     %===================== COMPUTATIONAL SEQUENCE ENDS =========================%
     %===================== PLOTTING SEQUENCE BEGINS    =========================%
+
+elseif userStep==0;%loading / post-processing of mat files
+
+  %records that correspond to each season
+  nrec=1+diff(myparms.recInAve);
+  rec0=myparms.recInAve(1)-1;
+  DJF=rec0+[[12:12:nrec] [1:12:nrec] [2:12:nrec]];
+  MMA=rec0+[[3:12:nrec] [4:12:nrec] [5:12:nrec]];
+  JJA=rec0+[[6:12:nrec] [7:12:nrec] [8:12:nrec]];
+  SON=rec0+[[9:12:nrec] [10:12:nrec] [11:12:nrec]];
+  ssnNrec=[length(DJF) length(MMA) length(JJA) length(SON)];
+
+  %load first record and initialize arrays
+  alldiag=diags_read_from_mat(dirMat,[fileMat '_*.mat'],'',1);
+  for ii=1:length(alldiag.listDiags);
+    tmp0=alldiag.listDiags{ii};
+    tmp1=getfield(alldiag,tmp0);
+    if isa(tmp1,'gcmfaces')|strcmp(tmp0,'ptrZm')|strcmp(tmp0,'ptr158W');
+      tmp1=0*repmat(tmp1,[1 1 1 4]);
+    elseif ~strcmp(tmp0,'listTimes')|~strcmp(tmp0,'listSteps');
+      tmp1=0*repmat(tmp1,[1 1 nrec]);
+    else;
+      tmp1=0*repmat(tmp1,[nrec 1]);
+    end;
+    alldiag=setfield(alldiag,tmp0,tmp1);
+  end;
+
+  %assemble seasonal averages or time series
+  tic;
+  fprintf('Reading files: started ... \n');
+  for jj=myparms.recInAve(1):myparms.recInAve(2);
+    ssn=find([sum(DJF==jj) sum(MMA==jj) sum(JJA==jj) sum(SON==jj)]);
+    tmpdiag=diags_read_from_mat(dirMat,[fileMat '_*.mat'],'',jj);
+    for ii=1:length(alldiag.listDiags);
+      tmp0=tmpdiag.listDiags{ii};
+      tmp1=getfield(tmpdiag,tmp0);
+      tmp2=getfield(alldiag,tmp0);
+      if isa(tmp1,'gcmfaces')|strcmp(tmp0,'ptrZm')|strcmp(tmp0,'ptr158W');
+        tmp2(:,:,:,ssn)=tmp2(:,:,:,ssn)+tmp1/ssnNrec(ssn);
+      elseif ~strcmp(tmp0,'listTimes')|~strcmp(tmp0,'listSteps');
+        tmp2(:,:,jj)=tmp1;
+      end;
+      alldiag=setfield(alldiag,tmp0,tmp2);
+    end;
+  end;  
+  fprintf('Reading files: ... ended \n');
+  toc;
+
+  diagsWereLoaded=1;
     
 elseif userStep==-1;%plotting
     
@@ -47,35 +96,25 @@ elseif userStep==-1;%plotting
         choicePlot=setDiagsParams;
     end;
     
-    %determine number of years in alldiag.listTimes
-    myTimes=alldiag.listTimes;
-    %determine the number of records in one year (lYear)
-    tmp1=mean(myTimes(2:end)-myTimes(1:end-1));
-    lYear=round(1/tmp1);
-    %in case when lYear<2 we use records as years
-    if ~(lYear>=2); lYear=1; myTimes=[1:length(myTimes)]; end;
-    %determine the number of full years (nYears)
-    nYears=floor(length(myTimes)/lYear);
-    
-    %
+    %season names:
+    ssnName={'DJF','MAM','JJA','SON'};
     
     if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'ptrTop50mSeason')));
         if addToTex; write2tex(fileTex,1,'Top 50m biomass (seasonal cycle)',2); end;
         cc=round([-2:0.2:1.2]*10)/10; bot=10^(cc(1)-2);
-        nrec=1+diff(myparms.recInAve);
-        for mm=1:12;
-            fld=sum(mean(alldiag.ptrTop50m(:,:,21:55,mm:12:nrec),4),3); 
+        for ssn=1:4;
+            fld=sum(alldiag.ptrTop50m(:,:,21:55,ssn),3); 
             fld(fld<bot)=bot; fld=log10(fld);
             figureL; m_map_gcmfaces(fld,1.2,{'myCaxis',cc},{'myCmap','inferno'});
-            myCaption={['phyto-plankton -- log10[C] where C is the month nb ' num2str(mm)  ' mean, top 50m average (in mgC/m3)']};
+            myCaption={['phyto-plankton -- log10[C] where C is the ' ssnName{ssn} ' mean, top 50m average (in mgC/m3)']};
             if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
         end;
         %
-        for mm=1:12;
-            fld=sum(mean(alldiag.ptrTop50m(:,:,56:71,mm:12:nrec),4),3); 
+        for ssn=1:4;
+            fld=sum(alldiag.ptrTop50m(:,:,56:71,ssn),3);
             fld(fld<bot)=bot; fld=log10(fld);
             figureL; m_map_gcmfaces(fld,1.2,{'myCaxis',cc},{'myCmap','inferno'});
-            myCaption={['zoo-plankton -- log10[C] where C is the month nb ' num2str(mm)  ' mean, top 50m average (in mgC/m3)']};
+            myCaption={['zoo-plankton -- log10[C] where C is the ' ssnName{ssn} ' mean, top 50m average (in mgC/m3)']};
             if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
         end;
     end;
@@ -98,22 +137,21 @@ elseif userStep==-1;%plotting
         if addToTex; write2tex(fileTex,1,'158W biomass (seasonal cycle)',2); end;
         [LO,LA,tmp1,X,Y]=gcmfaces_section([-158 -158],[-89 90],mygrid.hFacC);
         cc=round([-2:0.2:1.2]*10)/10; bot=10^(cc(1)-2);
-        nrec=1+diff(myparms.recInAve);
-        for mm=1:12;
-            fld=sum(mean(alldiag.ptr158W(:,:,21:55,mm:12:nrec),4),3); 
+        for ssn=1:4;
+            fld=sum(alldiag.ptr158W(:,:,21:55,ssn),3); 
             fld(fld<bot)=bot; fld=log10(fld);
             figureL; set(gcf,'Renderer','zbuffer'); pcolor(X,Y,fld); 
             shading interp; axis([20 55 -300 0]); gcmfaces_cmap_cbar(cc,{'myCmap','inferno'});
-            myCaption={['phyto-plankton -- log10[C] where C is the month nb ' num2str(mm)  ' mean at 158W (in mgC/m3)']};
+            myCaption={['phyto-plankton -- log10[C] where C is the ' ssnName{ssn} ' mean at 158W (in mgC/m3)']};
             if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
         end;
         %
-        for mm=1:12;
-            fld=sum(mean(alldiag.ptr158W(:,:,56:71,mm:12:nrec),4),3); 
+        for ssn=1:4;
+            fld=sum(alldiag.ptr158W(:,:,56:71,ssn),3); 
             fld(fld<bot)=bot; fld=log10(fld);
             figureL; set(gcf,'Renderer','zbuffer'); pcolor(X,Y,fld); 
             shading interp; axis([20 55 -300 0]); gcmfaces_cmap_cbar(cc,{'myCmap','inferno'});
-            myCaption={['zoo-plankton -- log10[C] where C is the month nb ' num2str(mm)  ' mean at 158W (in mgC/m3)']};
+            myCaption={['zoo-plankton -- log10[C] where C is the ' ssnName{ssn} ' mean at 158W (in mgC/m3)']};
             if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
         end;
     end;
@@ -139,22 +177,21 @@ elseif userStep==-1;%plotting
         if addToTex; write2tex(fileTex,1,'Zonal mean biomass (seasonal cycle)',2); end;
         X=mygrid.LATS*ones(1,length(mygrid.RC)); Y=ones(length(mygrid.LATS),1)*(mygrid.RC');
         cc=round([-2:0.2:1.2]*10)/10; bot=10^(cc(1)-2);
-        nrec=1+diff(myparms.recInAve);
-        for mm=1:12;
-            fld=sum(mean(alldiag.ptrZm(:,:,21:55,mm:12:nrec),4),3); 
+        for ssn=1:4;
+            fld=sum(alldiag.ptrZm(:,:,21:55,ssn),3); 
             fld(fld<bot)=bot; fld=log10(fld);
             figureL; set(gcf,'Renderer','zbuffer'); pcolor(X,Y,fld); 
             shading interp; axis([-90 90 -300 0]); gcmfaces_cmap_cbar(cc,{'myCmap','inferno'});
-            myCaption={['phyto-plankton -- log10[C] where C is the month nb ' num2str(mm)  ' mean, annual mean (in mgC/m3)']};
+            myCaption={['phyto-plankton -- log10[C] where C is the ' ssnName{ssn} ' mean, annual mean (in mgC/m3)']};
             if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
         end;
         %
-        for mm=1:12;
-            fld=sum(mean(alldiag.ptrZm(:,:,56:71,mm:12:nrec),4),3); 
+        for ssn=1:4;
+            fld=sum(alldiag.ptrZm(:,:,56:71,ssn),3); 
             fld(fld<bot)=bot; fld=log10(fld);
             figureL; set(gcf,'Renderer','zbuffer'); pcolor(X,Y,fld); 
             shading interp; axis([-90 90 -300 0]); gcmfaces_cmap_cbar(cc,{'myCmap','inferno'});
-            myCaption={['zoo-plankton -- log10[C] where C is the month nb ' num2str(mm)  ' mean, annual mean (in mgC/m3)']};
+            myCaption={['zoo-plankton -- log10[C] where C is the ' ssnName{ssn} ' mean, annual mean (in mgC/m3)']};
             if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
         end;
     end;
