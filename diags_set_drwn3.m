@@ -98,7 +98,33 @@ elseif userStep==-1;%plotting
     
     %season names:
     ssnName={'DJF','MAM','JJA','SON'};
-    
+
+    %number of records:
+    nrec=1+diff(myparms.recInAve);
+
+%%
+
+   if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'monthlyGlo')));
+        if addToTex; write2tex(fileTex,1,'Monthly Time Series For Top 50m Mean',2); end;
+
+        wei=mygrid.DRF; wei(mygrid.RC<-50)=0; 
+        wei=repmat(wei/sum(wei),[1 nrec]);
+        tim=squeeze(TT);
+        for iPtr=[21:71 1:20 72:106];
+          tmpGlo=sum(wei.*squeeze(alldiag.ptrGlo(:,iPtr,:)),1);
+          tmpNorth=sum(wei.*squeeze(alldiag.ptrNorth(:,iPtr,:)),1);
+          tmpSouth=sum(wei.*squeeze(alldiag.ptrSouth(:,iPtr,:)),1);
+          figureL; plot(tim,tmpGlo,'k','LineWidth',2); hold on;
+          plot(tim,tmpNorth,'b','LineWidth',2); plot(tim,tmpSouth,'r','LineWidth',2);
+          grid on; %legend('Global','North. Hem.','South. Hem.');
+          myCaption={['Global (black), Northern (blue), and Southern (red) mean, top 50m average concentration ' ...
+                        ' of ' PTRACERS_names(iPtr) ' (in ' PTRACERS_units(iPtr) ')']};
+          if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
+        end;
+    end;
+
+%%
+
     if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'ptrTop50mSeason')));
         if addToTex; write2tex(fileTex,1,'Top 50m biomass (seasonal cycle)',2); end;
         cc=round([-2:0.2:1.2]*10)/10; bot=10^(cc(1)-2);
@@ -121,7 +147,7 @@ elseif userStep==-1;%plotting
     
     if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'ptrTop50mAnnual')));
         if addToTex; write2tex(fileTex,1,'Top 50m biomass (plankton types)',2); end;
-        cc=round([-2:0.2:1.2]*10)/10; bot=10^(cc(1)-2);
+        cc=round([-2:0.2:1.2]*10)/10-1; bot=10^(cc(1)-2);
         for iPtr=21:71;
             fld=mean(alldiag.ptrTop50m(:,:,iPtr,:),4); fld(fld<bot)=bot; fld=log10(fld);
             figureL; m_map_gcmfaces(fld,1.2,{'myCaxis',cc},{'myCmap','inferno'});
@@ -130,58 +156,32 @@ elseif userStep==-1;%plotting
             if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
         end;
     end;
-    
-    %
-    
-    if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'ptr158Wseason')));
-        if addToTex; write2tex(fileTex,1,'158W biomass (seasonal cycle)',2); end;
-        [LO,LA,tmp1,X,Y]=gcmfaces_section([-158 -158],[-89 90],mygrid.hFacC);
-        cc=round([-2:0.2:1.2]*10)/10; bot=10^(cc(1)-2);
-        for ssn=1:4;
-            fld=sum(alldiag.ptr158W(:,:,21:55,ssn),3); 
-            fld(fld<bot)=bot; fld=log10(fld);
-            figureL; set(gcf,'Renderer','zbuffer'); pcolor(X,Y,fld); 
-            shading interp; axis([20 55 -300 0]); gcmfaces_cmap_cbar(cc,{'myCmap','inferno'});
-            myCaption={['phyto-plankton -- log10(C) where C is the ' ssnName{ssn} ' mean at 158W (in mgC/m3)']};
-            if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
-        end;
-        %
-        for ssn=1:4;
-            fld=sum(alldiag.ptr158W(:,:,56:71,ssn),3); 
-            fld(fld<bot)=bot; fld=log10(fld);
-            figureL; set(gcf,'Renderer','zbuffer'); pcolor(X,Y,fld); 
-            shading interp; axis([20 55 -300 0]); gcmfaces_cmap_cbar(cc,{'myCmap','inferno'});
-            myCaption={['zoo-plankton -- log10(C) where C is the ' ssnName{ssn} ' mean at 158W (in mgC/m3)']};
+
+    if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'nutrientTop50mAnnual')));
+        if addToTex; write2tex(fileTex,1,'Top 50m nutrients and chlorophyll',2); end;
+        for iPtr=[1:20 72:106];
+            cc=PTRACERS_ranges(iPtr);
+            fld=mean(alldiag.ptrTop50m(:,:,iPtr,:),4);
+            figureL; m_map_gcmfaces(fld,1.2,{'myCaxis',cc},{'myCmap','inferno'});
+            myCaption={['Annual mean, top 50m average concentration ' ...
+                        ' of ' PTRACERS_names(iPtr) ' (in ' PTRACERS_units(iPtr) ')']};
             if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
         end;
     end;
     
-    if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'ptr158Wannual')));
-        if addToTex; write2tex(fileTex,1,'158W biomass (plankton types)',2); end;
-        [LO,LA,tmp1,X,Y]=gcmfaces_section([-158 -158],[-89 90],mygrid.hFacC);
-        cc=round([-2:0.2:1.2]*10)/10; bot=10^(cc(1)-2);
-        for iPtr=21:71;
-            fld=mean(alldiag.ptr158W(:,:,iPtr,:),4); 
-            fld(fld<bot)=bot; fld=log10(fld);
-            figureL; set(gcf,'Renderer','zbuffer'); pcolor(X,Y,fld); 
-            shading interp; axis([20 55 -300 0]); gcmfaces_cmap_cbar(cc,{'myCmap','inferno'});
-            myCaption={['log10(C) where C is the annual mean ' ...
-                        ' of ' PTRACERS_names(iPtr) ' at 158W (in ' PTRACERS_units(iPtr) ')']};
-            if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
-        end;
-    end;
-    
-    %
+%%
     
     if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'ptrZmSeason')));
         if addToTex; write2tex(fileTex,1,'Zonal mean biomass (seasonal cycle)',2); end;
         X=mygrid.LATS*ones(1,length(mygrid.RC)); Y=ones(length(mygrid.LATS),1)*(mygrid.RC');
         cc=round([-2:0.2:1.2]*10)/10; bot=10^(cc(1)-2);
+        depthTics=[0:50:500]; depthLims=[0 500 500];
         for ssn=1:4;
             fld=sum(alldiag.ptrZm(:,:,21:55,ssn),3); 
             fld(fld<bot)=bot; fld=log10(fld);
-            figureL; set(gcf,'Renderer','zbuffer'); pcolor(X,Y,fld); 
-            shading interp; axis([-90 90 -300 0]); gcmfaces_cmap_cbar(cc,{'myCmap','inferno'});
+            figureL; set(gcf,'Renderer','zbuffer'); 
+            depthStretchPlot('pcolor',{X,Y,fld},depthTics,depthLims); grid on;
+            set(gca,'Layer','top'); shading interp; gcmfaces_cmap_cbar(cc,{'myCmap','inferno'});
             myCaption={['phyto-plankton -- log10(C) where C is the ' ssnName{ssn} ' mean, annual mean (in mgC/m3)']};
             if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
         end;
@@ -189,8 +189,9 @@ elseif userStep==-1;%plotting
         for ssn=1:4;
             fld=sum(alldiag.ptrZm(:,:,56:71,ssn),3); 
             fld(fld<bot)=bot; fld=log10(fld);
-            figureL; set(gcf,'Renderer','zbuffer'); pcolor(X,Y,fld); 
-            shading interp; axis([-90 90 -300 0]); gcmfaces_cmap_cbar(cc,{'myCmap','inferno'});
+            figureL; set(gcf,'Renderer','zbuffer');
+            depthStretchPlot('pcolor',{X,Y,fld},depthTics,depthLims); grid on;
+            set(gca,'Layer','top'); shading interp; gcmfaces_cmap_cbar(cc,{'myCmap','inferno'});
             myCaption={['zoo-plankton -- log10(C) where C is the ' ssnName{ssn} ' mean, annual mean (in mgC/m3)']};
             if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
         end;
@@ -199,16 +200,96 @@ elseif userStep==-1;%plotting
     if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'ptrZmAnnual')));
         if addToTex; write2tex(fileTex,1,'Zonal mean biomass (plankton types)',2); end;
         X=mygrid.LATS*ones(1,length(mygrid.RC)); Y=ones(length(mygrid.LATS),1)*(mygrid.RC');
-        cc=round([-2:0.2:1.2]*10)/10; bot=10^(cc(1)-2);
+        cc=round([-2:0.2:1.2]*10)/10-1; bot=10^(cc(1)-2);
+        depthTics=[0:50:500]; depthLims=[0 500 500];
         for iPtr=21:71;
             fld=mean(alldiag.ptrZm(:,:,iPtr,:),4); 
             fld(fld<bot)=bot; fld=log10(fld);
-            figureL; set(gcf,'Renderer','zbuffer'); pcolor(X,Y,fld); 
-            shading interp; axis([-90 90 -300 0]); gcmfaces_cmap_cbar(cc,{'myCmap','inferno'});
+            figureL; set(gcf,'Renderer','zbuffer');
+            depthStretchPlot('pcolor',{X,Y,fld},depthTics,depthLims); grid on;
+            set(gca,'Layer','top'); shading interp; gcmfaces_cmap_cbar(cc,{'myCmap','inferno'});
             myCaption={['log10(C) where C is the annual mean, zonal mean ' ...
                         ' of ' PTRACERS_names(iPtr) ' (in ' PTRACERS_units(iPtr) ')']};
             if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
         end;
     end;
-        
+
+    if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'nutrientZmAnnual')));
+        if addToTex; write2tex(fileTex,1,'Zonal mean nutrients and chlorophyll',2); end;
+        X=mygrid.LATS*ones(1,length(mygrid.RC)); Y=ones(length(mygrid.LATS),1)*(mygrid.RC');
+        for iPtr=[1:20 72:106];
+            depthTics=[0:50:500]; depthLims=[0 500 500];
+            if iPtr<21; depthTics=[0:100:500 1000:500:6000]; depthLims=[0 500 6000]; end;
+            cc=PTRACERS_ranges(iPtr);
+            fld=mean(alldiag.ptrZm(:,:,iPtr,:),4);
+            figureL; set(gcf,'Renderer','zbuffer');
+            depthStretchPlot('pcolor',{X,Y,fld},depthTics,depthLims); grid on;
+            set(gca,'Layer','top'); shading interp; colormap('inferno'); colorbar; caxis(cc);
+            myCaption={['Annual mean, zonal mean concentration ' ...
+                        ' of ' PTRACERS_names(iPtr) ' (in ' PTRACERS_units(iPtr) ')']};
+            if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
+        end;
+    end;
+
+%%
+
+    if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'ptr158Wseason')));
+        if addToTex; write2tex(fileTex,1,'158W biomass (seasonal cycle)',2); end;
+        [LO,LA,msk,X,Y]=gcmfaces_section([-158 -158],[-89 90],mygrid.mskC);
+        cc=round([-2:0.2:1.2]*10)/10; bot=10^(cc(1)-2);
+        depthTics=[0:50:500]; depthLims=[0 500 500];
+        for ssn=1:4;
+            fld=msk.*sum(alldiag.ptr158W(:,:,21:55,ssn),3);
+            fld(fld<bot)=bot; fld=log10(fld);
+            figureL; set(gcf,'Renderer','zbuffer'); 
+            depthStretchPlot('pcolor',{X,Y,fld},depthTics,depthLims); grid on; aa=axis; aa(1:2)=[10 60]; axis(aa);
+            set(gca,'Layer','top'); shading interp; gcmfaces_cmap_cbar(cc,{'myCmap','inferno'});
+            myCaption={['phyto-plankton -- log10(C) where C is the ' ssnName{ssn} ' mean at 158W (in mgC/m3)']};
+            if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
+        end;
+        %
+        for ssn=1:4;
+            fld=msk.*sum(alldiag.ptr158W(:,:,56:71,ssn),3);
+            fld(fld<bot)=bot; fld=log10(fld);
+            figureL; set(gcf,'Renderer','zbuffer'); 
+            depthStretchPlot('pcolor',{X,Y,fld},depthTics,depthLims); grid on; aa=axis; aa(1:2)=[10 60]; axis(aa);
+            set(gca,'Layer','top'); shading interp; gcmfaces_cmap_cbar(cc,{'myCmap','inferno'});
+            myCaption={['zoo-plankton -- log10(C) where C is the ' ssnName{ssn} ' mean at 158W (in mgC/m3)']};
+            if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
+        end;
+    end;
+
+    if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'ptr158Wannual')));
+        if addToTex; write2tex(fileTex,1,'158W biomass (plankton types)',2); end;
+        [LO,LA,msk,X,Y]=gcmfaces_section([-158 -158],[-89 90],mygrid.mskC);
+        cc=round([-2:0.2:1.2]*10)/10-1; bot=10^(cc(1)-2);
+        depthTics=[0:50:500]; depthLims=[0 500 500];
+        for iPtr=21:71;
+            fld=msk.*mean(alldiag.ptr158W(:,:,iPtr,:),4);
+            fld(fld<bot)=bot; fld=log10(fld);
+            figureL; set(gcf,'Renderer','zbuffer'); 
+            depthStretchPlot('pcolor',{X,Y,fld},depthTics,depthLims); grid on; aa=axis; aa(1:2)=[10 60]; axis(aa);
+            set(gca,'Layer','top'); shading interp; gcmfaces_cmap_cbar(cc,{'myCmap','inferno'});
+            myCaption={['log10(C) where C is the annual mean ' ...
+                        ' of ' PTRACERS_names(iPtr) ' at 158W (in ' PTRACERS_units(iPtr) ')']};
+            if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
+        end;
+    end;
+
+    if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'nutrient158Wannual')));
+        if addToTex; write2tex(fileTex,1,'158W nutrients and chlorophyll',2); end;
+        [LO,LA,msk,X,Y]=gcmfaces_section([-158 -158],[-89 90],mygrid.mskC);
+        for iPtr=[1:20 72:106];
+            depthTics=[0:50:500]; depthLims=[0 500 500];
+            cc=PTRACERS_ranges(iPtr);
+            fld=msk.*mean(alldiag.ptr158W(:,:,iPtr,:),4);
+            figureL; set(gcf,'Renderer','zbuffer');
+            depthStretchPlot('pcolor',{X,Y,fld},depthTics,depthLims); grid on; aa=axis; aa(1:2)=[10 60]; axis(aa);
+            set(gca,'Layer','top'); shading interp; colormap('inferno'); colorbar; caxis(cc);
+            myCaption={['Annual mean concentration ' ...
+                        ' of ' PTRACERS_names(iPtr) ' at 158W (in ' PTRACERS_units(iPtr) ')']};
+            if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
+        end;
+    end;
+
 end;
