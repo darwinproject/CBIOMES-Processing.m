@@ -24,7 +24,7 @@ elseif iFile==3;
   fldName=deblank(variable_names{iFld});
 elseif iFile==4;
   dirIn=[pwd '/diags_trsp_155W/']; listIn=dir([dirIn 'trsp_3d_set1*']);
-  variable_names={'NVELMASS','EVELMASS'};
+  variable_names={'NVELMASS','EVELMASS','WVELMASS','NVELBOLUS','EVELBOLUS','WVELBOLUS'};
   fldName=deblank(variable_names{iFld});
 else;
   error('unknow file collection');
