@@ -80,7 +80,7 @@ if strcmp(setDiags,'gudA')&userStep==-1;%plotting
     SON=[[9:12:nrec] [10:12:nrec] [11:12:nrec]];
 
    if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'monthlyGlo')));
-        if addToTex; write2tex(fileTex,1,'Monthly Time Series For Global And Hemisphere Mean',2); end;
+        if addToTex; write2tex(fileTex,1,'Monthly Time Series',2); end;
 
         for vv=1:3;
           switch vv;

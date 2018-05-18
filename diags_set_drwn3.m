@@ -105,7 +105,7 @@ elseif userStep==-1;%plotting
 %%
 
    if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'monthlyGlo')));
-        if addToTex; write2tex(fileTex,1,'Monthly Time Series For Top 50m Mean',2); end;
+        if addToTex; write2tex(fileTex,1,'Top 50m Biomass (Monthly Time Series)',2); end;
 
         wei=mygrid.DRF; wei(mygrid.RC<-50)=0; 
         wei=repmat(wei/sum(wei),[1 nrec]);
@@ -126,7 +126,7 @@ elseif userStep==-1;%plotting
 %%
 
     if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'ptrTop50mSeason')));
-        if addToTex; write2tex(fileTex,1,'Top 50m biomass (seasonal cycle)',2); end;
+        if addToTex; write2tex(fileTex,1,'Top 50m Biomass (Seasonal Cycle)',2); end;
         cc=round([-2:0.2:1.2]*10)/10; bot=10^(cc(1)-2);
         for ssn=1:4;
             fld=sum(alldiag.ptrTop50m(:,:,21:55,ssn),3); 
@@ -146,7 +146,7 @@ elseif userStep==-1;%plotting
     end;
     
     if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'ptrTop50mAnnual')));
-        if addToTex; write2tex(fileTex,1,'Top 50m biomass (plankton types)',2); end;
+        if addToTex; write2tex(fileTex,1,'Top 50m Biomass (Plankton Types)',2); end;
         cc=round([-2:0.2:1.2]*10)/10-1; bot=10^(cc(1)-2);
         for iPtr=21:71;
             fld=mean(alldiag.ptrTop50m(:,:,iPtr,:),4); fld(fld<bot)=bot; fld=log10(fld);
@@ -172,7 +172,7 @@ elseif userStep==-1;%plotting
 %%
     
     if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'ptrZmSeason')));
-        if addToTex; write2tex(fileTex,1,'Zonal mean biomass (seasonal cycle)',2); end;
+        if addToTex; write2tex(fileTex,1,'Zonal mean biomass (Seasonal Cycle)',2); end;
         X=mygrid.LATS*ones(1,length(mygrid.RC)); Y=ones(length(mygrid.LATS),1)*(mygrid.RC');
         cc=round([-2:0.2:1.2]*10)/10; bot=10^(cc(1)-2);
         depthTics=[0:50:500]; depthLims=[0 500 500];
@@ -198,7 +198,7 @@ elseif userStep==-1;%plotting
     end;
     
     if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'ptrZmAnnual')));
-        if addToTex; write2tex(fileTex,1,'Zonal mean biomass (plankton types)',2); end;
+        if addToTex; write2tex(fileTex,1,'Zonal mean biomass (Plankton Types)',2); end;
         X=mygrid.LATS*ones(1,length(mygrid.RC)); Y=ones(length(mygrid.LATS),1)*(mygrid.RC');
         cc=round([-2:0.2:1.2]*10)/10-1; bot=10^(cc(1)-2);
         depthTics=[0:50:500]; depthLims=[0 500 500];
@@ -215,7 +215,7 @@ elseif userStep==-1;%plotting
     end;
 
     if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'nutrientZmAnnual')));
-        if addToTex; write2tex(fileTex,1,'Zonal mean nutrients and chlorophyll',2); end;
+        if addToTex; write2tex(fileTex,1,'Zonal Mean Nutrients And Chlorophyll',2); end;
         X=mygrid.LATS*ones(1,length(mygrid.RC)); Y=ones(length(mygrid.LATS),1)*(mygrid.RC');
         for iPtr=[1:20 72:106];
             depthTics=[0:50:500]; depthLims=[0 500 500];
@@ -234,7 +234,7 @@ elseif userStep==-1;%plotting
 %%
 
     if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'ptr158Wseason')));
-        if addToTex; write2tex(fileTex,1,'158W biomass (seasonal cycle)',2); end;
+        if addToTex; write2tex(fileTex,1,'158W Biomass (Seasonal Cycle)',2); end;
         [LO,LA,msk,X,Y]=gcmfaces_section([-158 -158],[-89 90],mygrid.mskC);
         cc=round([-2:0.2:1.2]*10)/10; bot=10^(cc(1)-2);
         depthTics=[0:50:500]; depthLims=[0 500 500];
@@ -260,7 +260,7 @@ elseif userStep==-1;%plotting
     end;
 
     if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'ptr158Wannual')));
-        if addToTex; write2tex(fileTex,1,'158W biomass (plankton types)',2); end;
+        if addToTex; write2tex(fileTex,1,'158W Biomass (Plankton Types)',2); end;
         [LO,LA,msk,X,Y]=gcmfaces_section([-158 -158],[-89 90],mygrid.mskC);
         cc=round([-2:0.2:1.2]*10)/10-1; bot=10^(cc(1)-2);
         depthTics=[0:50:500]; depthLims=[0 500 500];
@@ -277,7 +277,7 @@ elseif userStep==-1;%plotting
     end;
 
     if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'nutrient158Wannual')));
-        if addToTex; write2tex(fileTex,1,'158W nutrients and chlorophyll',2); end;
+        if addToTex; write2tex(fileTex,1,'158W Nutrients And Chlorophyll',2); end;
         [LO,LA,msk,X,Y]=gcmfaces_section([-158 -158],[-89 90],mygrid.mskC);
         for iPtr=[1:20 72:106];
             depthTics=[0:50:500]; depthLims=[0 500 500];
