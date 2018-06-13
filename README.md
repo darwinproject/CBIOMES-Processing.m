@@ -7,6 +7,8 @@ a repository to share codes that are under development
 - `README_set_gudA.md` documents method to systematically depict model output, including `diags_set_drwn3.m` and `diags_set_gudA.m`.
 - `diags_set_drwn3.m` is a standard set of biomass and plankton distribution diagnostics.
 - `diags_set_gudA.m` is a standard set of biochemistry diagnostics with relevance to primary production.
+- `diags_plot_lightfields.m` is a standard set of irradiance reflectance diagnostics.
+- `diags_plot_planktongroups.m` is a standard set of plnakton group diagnostics.
 
 #### 155W section diagnostics
 
@@ -20,4 +22,11 @@ a repository to share codes that are under development
 - `eccov4_climplot.m` generates maps and sections of the physical ocean state variables (MLD, T, S, U, V,...).
 - `llc90drwn3_ptravrg.m` time averages tracer model output.
 - `llc90drwn3_ptrplot.m` plots time-averaged tracer output.
+- `plot_Rrs_at_cci.m` converts irradiance reflectance output to remotely sensed reflectances and interpolate to `CCI` / `SeaWiFS` wavelengths.
 
+### utilities
+
+- `PTRACERS_names.m` lookup table for tracer actual names.
+- `PTRACERS_varnames.m` lookup table for tracer internal code names.
+- `PTRACERS_units.m` lookup table for tracer variable units.
+- `PTRACERS_ranges.m` lookup table for tracer variable ranges.
