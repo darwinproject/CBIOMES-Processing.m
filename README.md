@@ -17,12 +17,18 @@ a repository to share codes that are under development
 - `interp_to_155W_uv.m` interpolates velocity to 155W (see C-grid docs).
 - `read_surf_maps.m`, `interp_surf_maps.m`, and `interp_surf_maps_uv.m` generate maps of top layer fields (e.g., 0-10m or 5m depth average).
 
+### OC-CCI processing, model-data comparison, etc.
+
+- `cci_Rrs_tests.m` converts irradiance reflectance output to remotely sensed reflectances and interpolate to `CCI` wavelengths (0D and 2D tests).
+- `cci_Rrs_remap.m` reads in OC-CCI data (netcdf files, sinusoidal grid), remaps it to llc90 grid (using bin-average, binary file).
+- `cci_Rrs_vs_model.m` compares regridded OC-CCI data from `cci_Rrs_remap.m` with model as in `cci_Rrs_tests.m`.
+
+
 ### other basic diagnostics
 
 - `eccov4_climplot.m` generates maps and sections of the physical ocean state variables (MLD, T, S, U, V,...).
 - `llc90drwn3_ptravrg.m` time averages tracer model output.
 - `llc90drwn3_ptrplot.m` plots time-averaged tracer output.
-- `plot_Rrs_at_cci.m` converts irradiance reflectance output to remotely sensed reflectances and interpolate to `CCI` / `SeaWiFS` wavelengths.
 
 ### utilities
 
