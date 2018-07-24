@@ -13,19 +13,24 @@ if isempty(which('gcmfaces')); p = genpath('gcmfaces/'); addpath(p); grid_load; 
 gcmfaces_global;
 
 listVar={'Rrs_412','Rrs_443','Rrs_490','Rrs_510','Rrs_555','Rrs_670'};
-prefIn='ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1M_MONTHLY_4km_SIN_PML_OCx_QAA-';
+prefIn='ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_4km_SIN_PML_OCx_QAA-';
+%prefIn='ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1M_MONTHLY_4km_SIN_PML_OCx_QAA-';
+suffIn='-fv3.1.nc';
 prefOut='OC_CCI_L3S_';
 if isempty(dir(dirOut)); mkdir(dirOut); end;
 
 for vv=listVar;
     for yy=yearVec;
+        fprintf(['creating: ' prefOut vv{1} '_' num2str(yy) '\n']);
+
         fidOut=fopen([dirOut prefOut vv{1} '_' num2str(yy)],'w','b');
-        tmp1=dir([dirIn num2str(yy) filesep prefIn '*-fv3.1.nc']);
-        nrec=length(tmp1);
-        for mm=1:nrec;
-            
-            tmp1=sprintf('%04d%02d',yy,mm);
-            filIn=[dirIn num2str(yy) filesep prefIn tmp1 '-fv3.1.nc'];
+        fileList=dir([dirIn num2str(yy) filesep prefIn '*' suffIn]);
+        fileList={fileList(:).name};
+        nfil=length(fileList);
+        for mm=1:nfil;
+            if mod(mm,10)==0; fprintf(['  status: processing ' fileList{mm} ' ...\n']); end;            
+
+            filIn=[dirIn num2str(yy) filesep fileList{mm}];
             ncload(filIn,'lon','lat',vv{1});
             fld=eval(vv{1});
             
@@ -50,9 +55,9 @@ for vv=listVar;
             tmp2=convert2array(tmp11);
             
             fwrite(fidOut,convert2gcmfaces(tmp2),'float32');
-            
         end;
         fclose(fidOut);
+        fprintf(['Done with ' prefOut vv{1} '_' num2str(yy) '\n']);
     end;
 end;
 
