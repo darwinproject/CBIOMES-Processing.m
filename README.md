@@ -22,6 +22,8 @@ a repository to share codes that are under development
 - `cci_Rrs_tests.m` converts irradiance reflectance output to remotely sensed reflectances and interpolate to `CCI` wavelengths (0D and 2D tests).
 - `cci_Rrs_remap.m` reads in OC-CCI data (netcdf files, sinusoidal grid), remaps it to llc90 grid (using bin-average, binary file).
 - `cci_Rrs_vs_model.m` compares regridded OC-CCI data from `cci_Rrs_remap.m` with model as in `cci_Rrs_tests.m`.
+- `cci_PostProcessModelOutput.m` converts monthly model output to daily OC-CCI Rrs (6 wavebands).
+- `cci_CompareModelData.m` plot maps of model and CCI sample averages, model-data difference maps, and time series of model vs dara stats.
 
 
 ### other basic diagnostics
