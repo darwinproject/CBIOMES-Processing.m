@@ -1,6 +1,5 @@
-# tmp\_code\_devel
-a repository to share codes that are under development
-
+# CBIOMES-Processing.m
+This repository contains prototype scripts for processing inputs and outputs of BIOMES models written in Matlab. A listing, hopefully up to date, of these scripts and their purposes is provided below. 
 
 #### standard diagnostics
 
