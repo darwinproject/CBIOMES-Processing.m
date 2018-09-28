@@ -1,5 +1,5 @@
 # CBIOMES-Processing.m
-This repository contains prototype scripts for processing inputs and outputs of BIOMES models written in Matlab. A listing, hopefully up to date, of these scripts and their purposes is provided below. 
+This repository contains prototype workflows, written in Matlab, having to do with CBIOMES model inputs and outputs. A listing, hopefully up to date, of the scripts and their respective purposes is provided below. 
 
 #### standard diagnostics
 
