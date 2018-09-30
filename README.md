@@ -38,3 +38,6 @@ a repository to share codes that are under development
 - `PTRACERS_varnames.m` lookup table for tracer internal code names.
 - `PTRACERS_units.m` lookup table for tracer variable units.
 - `PTRACERS_ranges.m` lookup table for tracer variable ranges.
+- `cs510readsample.m` reads cs510 grid and sample output. 
+- `cs510readmeta.m` reads cs510 sample output format.
+
