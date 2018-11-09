@@ -1,4 +1,4 @@
-function [fld,fldfname] = readsample3(dirOutput,iStep)
+function [fld,fldfname] = readsample3(dirGrid,dirOutput,iStep)
 
 gcmfaces_global;%this code uses the gcmfaces toolbox (https://github.com/gaelforget/gcmfaces/)
 
@@ -7,7 +7,7 @@ gcmfaces_global;%this code uses the gcmfaces toolbox (https://github.com/gaelfor
 %dirGrid = [fullfile(sampledir,sample,'grid') filesep];
 %dirOutput = [fullfile(sampledir,sample,'output') filesep];
 
-dirGrid = strrep(dirOutput,'output','grid');
+%dirGrid = strrep(dirOutput,'output','grid');
 
 if isempty(mygrid)||~strcmp(mygrid.dirGrid,dirGrid);
     nFaces=6; fileFormat='cube';
