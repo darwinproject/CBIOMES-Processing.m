@@ -39,4 +39,5 @@ This repository contains prototype workflows, written in Matlab, having to do wi
 - `PTRACERS_ranges.m` lookup table for tracer variable ranges.
 - `cs510readsample.m` reads cs510 grid and sample output. 
 - `cs510readmeta.m` reads cs510 sample output format.
+- `cs510readtiles.m` reads cs510 tiled output format.
 
