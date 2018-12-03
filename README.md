@@ -30,6 +30,7 @@ This repository contains prototype workflows, written in Matlab, having to do wi
 - `eccov4_climplot.m` generates maps and sections of the physical ocean state variables (MLD, T, S, U, V,...).
 - `llc90drwn3_ptravrg.m` time averages tracer model output.
 - `llc90drwn3_ptrplot.m` plots time-averaged tracer output.
+- `Top50mAveBiomass.m` sums biomass and chlorophyll over all plankton types and average over top 50m.
 
 ### utilities
 
