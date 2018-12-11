@@ -5,20 +5,25 @@ p = genpath([pwd '/../']);
 addpath(p);
 
 % which sample directory
-sampledir = 'DarwinModelOutputSamples';
+sampledir = '../../DarwinModelOutputSamples/';%'/nfs/cnhlab004/cbiomes001/la25321/';
 sampleType = 'sample3';
-sample = 'sample3';
+sample = 'ptr';
 diagnosticFile = fullfile(sampledir,'doc/available_diagnostics.log');
 readmeFile = fullfile(sampledir,'README.md');
-dirGrid = [fullfile(sampledir,sampleType,'grid') filesep];
-dirOutput = fullfile(sampledir,sample,'output/');
-interpDir = fullfile(dirOutput,'diags_interp/');
+dirGrid = [fullfile(sampledir,sampleType,'grid') filesep];%'/nfs/micklab004/jahn/nobackup/ecco2/cube92/diags/c65u/FW/grid/';
+dirOutput = fullfile(sampledir,sample);%'/nfs/micklab004/jahn/nobackup/ecco2/cube92/diags/c65u/FW/ptr/';%fullfile(sampledir,sample,'output/');
+interpDir = fullfile(sampledir,sample,'diags_interp/');
 selectFld = {'TRAC21'};
 
 % Which part of processing to do
 doInterp = 0;
 doNCtiles = 1;
+
+% Processing Options
 iterateOverFiles = 0;
+
+% Output Options
+latlon1D = 1; % should latitude and longitude be 1 dimensional or 2?
 
 switch sampleType
     case 'sample1'
@@ -37,6 +42,19 @@ switch sampleType
         iterateOverFiles = 1;
     otherwise
         disp('Not a valid sample type')
+end
+
+% Select Fields
+% Get list of interpolated names
+if ischar(selectFld) || strcmp(selectFld,'all')
+    [selectFld,listNot]=process2interp(dirOutput,outputPrefix,'',interpDir,diagnosticFile);
+end
+
+if ~isempty(getenv('SLURM_ARRAY_TASK_ID')) % In slurm job array to parallelize selectFld
+    taskID = getenv('SLURM_ARRAY_TASK_ID');
+    numTasks = getenv('SLURM_ARRAY_TASK_COUNT');
+    
+    selectFld = selectFld(taskID:numTasks:end);
 end
 
 %% Read in the Grid
@@ -58,14 +76,9 @@ if doInterp
         copyfile(diagnosticFile,dirOutput);
     end
     
+    listInterp = selectFld;
+    
     if strcmp(sampleType,'sample3')
-        
-        % Get list of interpolated names
-        if ischar(selectFld) || strcmp(selectFld,'all')
-            [listInterp,listNot]=process2interp(dirOutput,outputPrefix,'',interpDir,diagnosticFile);
-        else
-            listInterp = selectFld;
-        end
         
         % Do the interpolation
         fnames = dir(fullfile(dirOutput,[subdirPrefix '0000'],[outputPrefix '*.data']));
@@ -103,14 +116,14 @@ if doNCtiles
         copyfile(readmeFile,fullfile(interpDir,'README'));
     end
     
-    if ischar(selectFld) || strcmp(selectFld,'all')
-        selectFld=dir(interpDir); selectFld={selectFld(:).name};
-        jj = cellfun(@(x) contains(x,'TRAC'),selectFld);
-        selectFld={selectFld{jj}};
-    end
+%     if ischar(selectFld) || strcmp(selectFld,'all')
+%         selectFld=dir(interpDir); selectFld={selectFld(:).name};
+%         jj = cellfun(@(x) contains(x,'TRAC'),selectFld);
+%         selectFld={selectFld{jj}};
+%     end
     
-    interp2nctiles(interpDir,selectFld,iterateOverFiles);
+    interp2nctiles(interpDir,selectFld,iterateOverFiles,latlon1D);
     
-    movefile(fullfile(interpDir,'nctiles_tmp'),fullfile(interpDir,'nctiles'))
+    %movefile(fullfile(interpDir,'nctiles_tmp'),fullfile(interpDir,'nctiles'))
     %movefile(fullfile(interpDir,'nctiles_tmp'),fullfile(dirOutput,'nctiles'))
 end
