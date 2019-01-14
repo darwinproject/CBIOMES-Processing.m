@@ -44,7 +44,8 @@ for vv=listVar;
             end;
             
             vec=double(fld)';
-            msk=1*(vec<1e36);
+            msk=1*(vec<1e36&~isnan(vec));
+            vec(msk==0)=0;
             
             tmp0=S*msk;
             tmp1=S*(msk.*vec);
