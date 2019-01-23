@@ -5,13 +5,13 @@ p = genpath([pwd '/../']);
 addpath(p);
 
 % which sample directory
-sampledir = '../../DarwinModelOutputSamples/';%'/nfs/cnhlab004/cbiomes001/la25321/';
+sampledir = '../../DarwinModelOutputSamples/';
 sampleType = 'sample3';
 sample = 'ptr';
 diagnosticFile = fullfile(sampledir,'doc/available_diagnostics.log');
 readmeFile = fullfile(sampledir,'README.md');
-dirGrid = [fullfile(sampledir,sampleType,'grid') filesep];%'/nfs/micklab004/jahn/nobackup/ecco2/cube92/diags/c65u/FW/grid/';
-dirOutput = fullfile(sampledir,sample);%'/nfs/micklab004/jahn/nobackup/ecco2/cube92/diags/c65u/FW/ptr/';%fullfile(sampledir,sample,'output/');
+dirGrid = [fullfile(sampledir,sampleType,'grid') filesep];
+dirOutput = fullfile(sampledir,sample);%
 interpDir = fullfile(sampledir,sample,'diags_interp/');
 selectFld = {'TRAC21'};
 
@@ -116,11 +116,14 @@ if doNCtiles
         copyfile(readmeFile,fullfile(interpDir,'README'));
     end
     
+<<<<<<< HEAD
 %     if ischar(selectFld) || strcmp(selectFld,'all')
 %         selectFld=dir(interpDir); selectFld={selectFld(:).name};
 %         jj = cellfun(@(x) contains(x,'TRAC'),selectFld);
 %         selectFld={selectFld{jj}};
 %     end
+=======
+>>>>>>> e28bae4a4da5a787707f128c60ce977e9eafa778
     
     interp2nctiles(interpDir,selectFld,iterateOverFiles,latlon1D);
     
