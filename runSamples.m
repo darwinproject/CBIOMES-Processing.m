@@ -1,4 +1,6 @@
 %% Running Pipeline on sample* directories
+clear all;
+
 
 % Put tools on path
 p = genpath([pwd '/../']);
@@ -11,19 +13,14 @@ sample = 'ptr';
 diagnosticFile = fullfile(sampledir,'doc/available_diagnostics.log');
 readmeFile = fullfile(sampledir,'README.md');
 dirGrid = [fullfile(sampledir,sampleType,'grid') filesep];
-dirOutput = fullfile(sampledir,sample);%
-interpDir = fullfile(sampledir,sample,'diags_interp/');
+dirOutput = [fullfile(sampledir,sample,'output') filesep];
+interpDir = [fullfile(sampledir,sample,'diags_interp_') datestr(now,'yyyymmdd_HHMM') filesep];
+nctileDir = [fullfile(sampledir,sample,'nctiles_') datestr(now,'yyyymmdd_HHMM') filesep];
 selectFld = {'TRAC21'};
 
 % Which part of processing to do
-doInterp = 0;
+doInterp = 1; doInterpForce = 1;
 doNCtiles = 1;
-
-% Processing Options
-iterateOverFiles = 0;
-
-% Output Options
-latlon1D = 1; % should latitude and longitude be 1 dimensional or 2?
 
 switch sampleType
     case 'sample1'
@@ -39,15 +36,8 @@ switch sampleType
         nfaces = 6;
         fileformat = 'cube';
         subdirPrefix = 'res_';
-        iterateOverFiles = 1;
     otherwise
         disp('Not a valid sample type')
-end
-
-% Select Fields
-% Get list of interpolated names
-if ischar(selectFld) || strcmp(selectFld,'all')
-    [selectFld,listNot]=process2interp(dirOutput,outputPrefix,'',interpDir,diagnosticFile);
 end
 
 if ~isempty(getenv('SLURM_ARRAY_TASK_ID')) % In slurm job array to parallelize selectFld
@@ -68,12 +58,28 @@ if isempty(mygrid)
     grid_load(dirGrid,nfaces,fileformat);
 end
 
+% Select Fields
+% Get list of interpolated names
+if ischar(selectFld) || strcmp(selectFld,'all')
+    [selectFld,listNot]=process2interp(dirOutput,outputPrefix);
+end
+
 %% Interpolate Output
 if doInterp
     disp('Interpolating output files')
     
     if ~exist(fullfile(dirOutput,'available_diagnostics.log'),'file')
         copyfile(diagnosticFile,dirOutput);
+    end
+    
+    if ~isempty(dir(fullfile(sampledir,sample,'diags_interp*')))
+        previnterpDir = dir(fullfile(sampledir,sample,'diags_interp*'));
+        interpPrecomp = fullfile(sampledir,sample,previnterpDir(1).name,'interp_precomputed.mat');
+        if exist(interpPrecomp,'file')
+            interptmpdir = [fullfile(dirOutput,'diags_interp_tmp') filesep];
+            if ~exist(interptmpdir,'dir'); mkdir(interptmpdir); end
+            copyfile(interpPrecomp,[fullfile(dirOutput,'diags_interp_tmp') filesep]);
+        end
     end
     
     listInterp = selectFld;
@@ -86,10 +92,17 @@ if doInterp
             fparts = strsplit(fnames(i).name,'.');
             iStep = str2double(fparts{2});
             
-            if isempty(dir([interpDir listInterp{end} filesep '*' fparts{2} '.meta'])) % Skip if already interpolated
-                
-                [fld,fldfname] = readsample3(dirGrid,dirOutput,iStep);
-                process2interp(dirOutput,outputPrefix,'',interpDir,diagnosticFile,listInterp,fld,fldfname);
+            if isempty(dir([interpDir listInterp{end} filesep '*' fparts{2} '.meta'])) || doInterpForce % Skip if already interpolated
+                for j = 1:length(listInterp)
+                    iPtr = str2double(listInterp{j}(end-1:end));
+                    if isnan(iPtr)
+                        iPtr = 100 + 10*(double(listInterp{j}(end-1))-48) + double(listInterp{j}(end-1))-96;
+                    end
+                    fldfname = strjoin(fparts(1:2),'.');
+                    fld = cs510readtiles(dirOutput,outputPrefix,iStep,iPtr);
+                    %process2interp(dirOutput,outputPrefix,'',interpDir,diagnosticFile,listInterp(j),fld,fldfname);
+                    process2interp(dirOutput,outputPrefix,listInterp(j),fld,fldfname);
+                end
             else
                 disp(['skipping ' fnames(i).name])
             end
@@ -97,15 +110,17 @@ if doInterp
         
     else
         % Get list of interpolated names
-        [listInterp,listNot]=process2interp(dirOutput,outputPrefix,'');
+        %[listInterp,listNot]=process2interp(dirOutput,outputPrefix);
         
         % Do the interpolation
-        process2interp(dirOutput,outputPrefix,'',listInterp);
+        process2interp(dirOutput,outputPrefix,listInterp);
     end
     
     % Rename completed interpolated files directory
     movefile(fullfile(dirOutput,'diags_interp_tmp'),interpDir)
 end
+
+
 %% Write to NetCDF Files
 if doNCtiles
     if ~exist(fullfile(interpDir,'available_diagnostics.log'),'file')
@@ -117,8 +132,8 @@ if doNCtiles
     end
     
     
-    interp2nctiles(interpDir,selectFld,iterateOverFiles,latlon1D);
+    interp2nctiles(interpDir,selectFld);
     
     %movefile(fullfile(interpDir,'nctiles_tmp'),fullfile(interpDir,'nctiles'))
-    %movefile(fullfile(interpDir,'nctiles_tmp'),fullfile(dirOutput,'nctiles'))
+    movefile(fullfile(interpDir,'nctiles_tmp'),nctileDir)
 end
