@@ -35,9 +35,10 @@ switch sampleType
         disp('Not a valid sample type')
 end
 
-latlon1D = 0;
+latlon1D = 1;
 doNCtiles = 1;
 doInterp = 0;
+doInterpForce = 0;
 
 %% Read in the Grid
 disp('Reading in the grid')
@@ -69,30 +70,44 @@ if doInterp
     
     disp('Calculating and interpolating Plk050 and Chl050')
     
-    for i = 1:length(fnames)
+    if ~isempty(getenv('SLURM_ARRAY_TASK_ID')) % In slurm job array to parallelize selectFld
+        taskID = getenv('SLURM_ARRAY_TASK_ID');
+        numTasks = getenv('SLURM_ARRAY_TASK_COUNT');
+
+        myidx = taskID:numTasks:length(fnames);
+    else
+        myidx = 1:length(fnames);
+    end
+    
+    for i = myidx
         fparts = strsplit(fnames(i).name,'.');
-        iStep = str2double(fparts{2});
-        savename = strjoin(fparts(1:2),'.');
-        [biomass0to50ave,chl0to50ave] = calcTop50AveBiomass(dirOutput,prefix,iStep);
-        
-        % Save to Output
-        saveDir = fullfile(dirOutput,'additionalFields');
-        if ~isdir(saveDir); mkdir(saveDir); end;
-        [dims,prec,tiles]=cs510readmeta(dirOutput);
-        
-        %write binary field (masked)
-        write2file(fullfile(saveDir,[savename '.Plk050.data']),convert2vector(biomass0to50ave),32,0);
-        write2file(fullfile(saveDir,[savename '.Chl050.data']),convert2vector(chl0to50ave),32,0);
-        
-        %create meta file
-        write2meta(fullfile(saveDir,[savename '.Plk050.data']),dims(1:2),32,{'Plk050'});
-        write2meta(fullfile(saveDir,[savename '.Chl050.data']),dims(1:2),32,{'Chl050'});
-        
-        % Interpolate
-        fldfname = strjoin(fparts(1:2),'.');
-        process2interp(dirOutput,outputPrefix,'',interpDir,diagnosticFile,{bioName},biomass0to50ave,fldfname);
-        fldfname = strjoin(fparts(1:2),'.');
-        process2interp(dirOutput,outputPrefix,'',interpDir,diagnosticFile,{chlName},biomass0to50ave,fldfname);
+        if isempty(dir([interpDir 'Chl050' filesep '*' fparts{2} '.meta'])) || doInterpForce % Skip if already interpolated
+            
+            iStep = str2double(fparts{2});
+            savename = strjoin(fparts(1:2),'.');
+            [biomass0to50ave,chl0to50ave] = calcTop50AveBiomass(dirOutput,prefix,iStep);
+            
+            % Save to Output
+            saveDir = fullfile(dirOutput,'additionalFields');
+            if ~isdir(saveDir); mkdir(saveDir); end;
+            [dims,prec,tiles]=cs510readmeta(dirOutput);
+            
+            %write binary field (masked)
+            write2file(fullfile(saveDir,[savename '.Plk050.data']),convert2vector(biomass0to50ave),32,0);
+            write2file(fullfile(saveDir,[savename '.Chl050.data']),convert2vector(chl0to50ave),32,0);
+            
+            %create meta file
+            write2meta(fullfile(saveDir,[savename '.Plk050.data']),dims(1:2),32,{'Plk050'});
+            write2meta(fullfile(saveDir,[savename '.Chl050.data']),dims(1:2),32,{'Chl050'});
+            
+            % Interpolate
+            fldfname = strjoin(fparts(1:2),'.');
+            process2interp(dirOutput,outputPrefix,'',interpDir,diagnosticFile,{bioName},biomass0to50ave,fldfname);
+            fldfname = strjoin(fparts(1:2),'.');
+            process2interp(dirOutput,outputPrefix,'',interpDir,diagnosticFile,{chlName},biomass0to50ave,fldfname);
+        else
+            disp(['skipping ' fnames(i).name])
+        end
     end
     
     clear biomass0to50ave chl0to50ave
@@ -115,7 +130,7 @@ if doNCtiles
     end
     
     
-    interp2nctiles(interpDir,selectFld,iterateOverFiles,latlon1D);
+    interp2nctiles(interpDir,selectFld);
     
     system(['mv ' fullfile(interpDir,'nctiles_tmp','Plk050') ' ' fullfile(sampledir,'nctiles') '/']);
     system(['mv ' fullfile(interpDir,'nctiles_tmp','Chl050') ' ' fullfile(sampledir,'nctiles') '/']);
