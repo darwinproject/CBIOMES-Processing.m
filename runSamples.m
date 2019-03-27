@@ -1,4 +1,4 @@
-%% Running Pipeline on sample* directories
+% Running Pipeline on sample* directories
 clear all;
 
 
@@ -18,8 +18,12 @@ interpDir = [fullfile(sampledir,sample,'diags_interp_') datestr(now,'yyyymmdd_HH
 nctileDir = [fullfile(sampledir,sample,'nctiles_') datestr(now,'yyyymmdd_HHMM') filesep];
 selectFld = {'TRAC21'};
 
+% Time Units
+timeUntis = 'days since 1992-1-1 0:0:0';
+dateStart = [1992 1 1];
+
 % Which part of processing to do
-doInterp = 1; doInterpForce = 1;
+doInterp = 1; doInterpForce = 0;
 doNCtiles = 1;
 
 switch sampleType
@@ -27,6 +31,8 @@ switch sampleType
         outputPrefix = 'ptr_3d_set1';
         nfaces = 5;
         fileformat = 'compact';
+        timeInterval = 30;
+        nsteps = 12;
     case 'sample2'
         outputPrefix = '3d';
         nfaces = 1;
@@ -36,6 +42,7 @@ switch sampleType
         nfaces = 6;
         fileformat = 'cube';
         subdirPrefix = 'res_';
+        timeInterval = 3;
     otherwise
         disp('Not a valid sample type')
 end
@@ -88,12 +95,16 @@ if doInterp
         
         % Do the interpolation
         fnames = dir(fullfile(dirOutput,[subdirPrefix '0000'],[outputPrefix '*.data']));
-        for i = 1:length(fnames)
+        nsteps = length(fnames);
+        for i = 1:nsteps
             fparts = strsplit(fnames(i).name,'.');
             iStep = str2double(fparts{2});
             
             if isempty(dir([interpDir listInterp{end} filesep '*' fparts{2} '.meta'])) || doInterpForce % Skip if already interpolated
                 for j = 1:length(listInterp)
+                    if ~exist(fullfile(interpDir,listInterp{j}),'dir')
+                        mkdir(fullfile(interpDir,listInterp{j}));
+                    end
                     iPtr = str2double(listInterp{j}(end-1:end));
                     if isnan(iPtr)
                         iPtr = 100 + 10*(double(listInterp{j}(end-1))-48) + double(listInterp{j}(end-1))-96;
@@ -102,10 +113,13 @@ if doInterp
                     fld = cs510readtiles(dirOutput,outputPrefix,iStep,iPtr);
                     %process2interp(dirOutput,outputPrefix,'',interpDir,diagnosticFile,listInterp(j),fld,fldfname);
                     process2interp(dirOutput,outputPrefix,listInterp(j),fld,fldfname);
+                    
+                    system(['mv ' dirOutput filesep 'diags_interp_tmp/' listInterp{j} '/* ' fullfile(interpDir,listInterp{j})])
                 end
             else
                 disp(['skipping ' fnames(i).name])
             end
+            
         end
         
     else
@@ -114,12 +128,26 @@ if doInterp
         
         % Do the interpolation
         process2interp(dirOutput,outputPrefix,listInterp);
+        
+        system(['mv ' dirOutput filesep 'diags_interp_tmp ' interpDir])
+        %movefile(fullfile(dirOutput,'diags_interp_tmp'),interpDir)
     end
     
     % Rename completed interpolated files directory
-    movefile(fullfile(dirOutput,'diags_interp_tmp'),interpDir)
+    
 end
 
+%% Determine time series
+
+if timeInterval == 30 %monthly
+    tim=[dateStart(1)*ones(nsteps,1) dateStart(2)+[0:nsteps-1]' 15*ones(nsteps,1)];
+    timeVec=datenum(tim)-datenum(dateStart);
+else
+    %timeVec = 1:nsteps;
+    timeVec = timeInterval*(1:nsteps);
+end
+
+addTime(timeVec,timeUntis);
 
 %% Write to NetCDF Files
 if doNCtiles
