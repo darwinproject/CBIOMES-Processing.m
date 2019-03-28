@@ -38,7 +38,9 @@ This repository contains prototype workflows, written in Matlab, having to do wi
 - `PTRACERS_varnames.m` lookup table for tracer internal code names.
 - `PTRACERS_units.m` lookup table for tracer variable units.
 - `PTRACERS_ranges.m` lookup table for tracer variable ranges.
-- `cs510readsample.m` reads cs510 grid and sample output. 
+- `cs510readsample.m` reads cs510 grid and sample output.
 - `cs510readmeta.m` reads cs510 sample output format.
 - `cs510readtiles.m` reads cs510 tiled output format.
-
+- `runSamples.m` demo script to interpolate and create NetCDF files for different types of output formats.
+- `runCalAveBiomass.m` script to calculate Average Biomass for cs510 data, interpolate, and output as NetCDF.
+- `addLineAvailDiag.m` adds line to available_diagnostics.log file.
