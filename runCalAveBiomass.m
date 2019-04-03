@@ -1,26 +1,33 @@
 %% Running Pipeline on sample* directories
+clear all
+
 
 % Put tools on path
 p = genpath([pwd '/../']);
 addpath(p);
 
 % which sample directory
-samplebase = '../../DarwinModelOutputSamples/';
+sampledir = '../../DarwinModelOutputSamples/';
 sampleType = 'sample3';
 sample = 'ptr';
-sampledir = fullfile(samplebase,sample);
-diagnosticFile = fullfile(sampledir,'available_diagnostics.log');
-readmeFile = fullfile(samplebase,'README.md');
-dirGrid = [fullfile(samplebase,sampleType,'grid') filesep];
-dirOutput = [fullfile(sampledir,'output') filesep];
-interpDir = fullfile(sampledir,'diags_interp/');
+diagnosticFile = fullfile(sampledir,'doc/available_diagnostics.log');
+readmeFile = fullfile(sampledir,'README.md');
+dirGrid = [fullfile(sampledir,sampleType,'grid') filesep];
+dirOutput = [fullfile(sampledir,sample,'output') filesep];
+interpDir = [fullfile(sampledir,sample,'diags_interp_') datestr(now,'yyyymmdd_HHMM') filesep]; %'20190304_1659' filesep]; %
+nctileDir = [fullfile(sampledir,sample,'nctiles_') datestr(now,'yyyymmdd_HHMM') filesep];
 selectFld = {'biomass0to50ave','chl0to50ave'};
+
+% Time Units
+timeUntis = 'days since 1992-1-1 0:0:0';
+dateStart = [1992 1 1];
 
 switch sampleType
     case 'sample1'
         outputPrefix = 'ptr_3d_set1';
         nfaces = 5;
         fileformat = 'compact';
+        timeInterval = 30;
     case 'sample2'
         outputPrefix = '3d';
         nfaces = 1;
@@ -30,15 +37,14 @@ switch sampleType
         nfaces = 6;
         fileformat = 'cube';
         subdirPrefix = 'res_';
-        iterateOverFiles = 1;
+        timeInterval = 3;
     otherwise
         disp('Not a valid sample type')
 end
 
-latlon1D = 1;
 doNCtiles = 1;
-doInterp = 0;
-doInterpForce = 0;
+doInterp = 1;
+doInterpForce = 1;
 
 %% Read in the Grid
 disp('Reading in the grid')
@@ -63,6 +69,16 @@ if doInterp
         prefix = outputPrefix;
     end
     
+    if ~isempty(dir(fullfile(sampledir,sample,'diags_interp*')))
+        previnterpDir = dir(fullfile(sampledir,sample,'diags_interp*'));
+        interpPrecomp = fullfile(sampledir,sample,previnterpDir(1).name,'interp_precomputed.mat');
+        if exist(interpPrecomp,'file')
+            interptmpdir = [fullfile(dirOutput,'diags_interp_tmp') filesep];
+            if ~exist(interptmpdir,'dir'); mkdir(interptmpdir); end
+            copyfile(interpPrecomp,[fullfile(dirOutput,'diags_interp_tmp') filesep]);
+        end
+    end
+    
     % Add to Diags
     bioName = addLineAvailDiag(diagnosticFile, 'Plk050', 1, [], 'SMR     M1', 'mmol C/', 'Average plankton concentration (top 50m)');
     chlName = addLineAvailDiag(diagnosticFile, 'Chl050', 1, [], 'SMR     M1', 'mg Chl', 'Average chlorophyll concentration (top 50m)');
@@ -70,13 +86,15 @@ if doInterp
     
     disp('Calculating and interpolating Plk050 and Chl050')
     
+    nsteps = length(fnames);
+    
     if ~isempty(getenv('SLURM_ARRAY_TASK_ID')) % In slurm job array to parallelize selectFld
         taskID = getenv('SLURM_ARRAY_TASK_ID');
         numTasks = getenv('SLURM_ARRAY_TASK_COUNT');
 
-        myidx = taskID:numTasks:length(fnames);
+        myidx = taskID:numTasks:nsteps;
     else
-        myidx = 1:length(fnames);
+        myidx = 1:nsteps;
     end
     
     for i = myidx
@@ -102,9 +120,15 @@ if doInterp
             
             % Interpolate
             fldfname = strjoin(fparts(1:2),'.');
-            process2interp(dirOutput,outputPrefix,'',interpDir,diagnosticFile,{bioName},biomass0to50ave,fldfname);
+            process2interp(dirOutput,outputPrefix,{bioName},biomass0to50ave,fldfname);
             fldfname = strjoin(fparts(1:2),'.');
-            process2interp(dirOutput,outputPrefix,'',interpDir,diagnosticFile,{chlName},biomass0to50ave,fldfname);
+            process2interp(dirOutput,outputPrefix,{chlName},biomass0to50ave,fldfname);
+            
+            if ~exist(fullfile(interpDir,'Plk050'),'dir'); mkdir(fullfile(interpDir,'Plk050')); end
+            if ~exist(fullfile(interpDir,'Chl050'),'dir'); mkdir(fullfile(interpDir,'Chl050')); end
+            
+            system(['mv ' dirOutput filesep 'diags_interp_tmp/Plk050/* ' fullfile(interpDir,'Plk050')]);
+            system(['mv ' dirOutput filesep 'diags_interp_tmp/Chl050/* ' fullfile(interpDir,'Chl050')]);
         else
             disp(['skipping ' fnames(i).name])
         end
@@ -112,12 +136,27 @@ if doInterp
     
     clear biomass0to50ave chl0to50ave
     
+    % Rename completed interpolated files directory
+    movefile(fullfile(dirOutput,'diags_interp_tmp'),interpDir)
+    
 else
     
     bioName = addLineAvailDiag(diagnosticFile, 'Plk050', 1, [], 'SMR     M1', 'mmol C/', 'Average plankton concentration (top 50m)');
     chlName = addLineAvailDiag(diagnosticFile, 'Chl050', 1, [], 'SMR     M1', 'mg Chl', 'Average chlorophyll concentration (top 50m)');
     selectFld = {bioName,chlName};
 end
+
+%% Determine time series
+
+if timeInterval == 30 %monthly
+    tim=[dateStart(1)*ones(nsteps,1) dateStart(2)+[0:nsteps-1]' 15*ones(nsteps,1)];
+    timeVec=datenum(tim)-datenum(dateStart);
+else
+    %timeVec = 1:nsteps;
+    timeVec = timeInterval*(1:nsteps);
+end
+
+addTime(timeVec,timeUntis);
 
 %% Write Interp to NCtiles
 
@@ -132,10 +171,7 @@ if doNCtiles
     
     interp2nctiles(interpDir,selectFld);
     
-    system(['mv ' fullfile(interpDir,'nctiles_tmp','Plk050') ' ' fullfile(sampledir,'nctiles') '/']);
-    system(['mv ' fullfile(interpDir,'nctiles_tmp','Chl050') ' ' fullfile(sampledir,'nctiles') '/']);
+    system(['mv ' fullfile(interpDir,'nctiles_tmp','Plk050') ' ' nctileDir '/']);
+    system(['mv ' fullfile(interpDir,'nctiles_tmp','Chl050') ' ' nctileDir '/']);
     
-    %movefile(fullfile(interpDir,'nctiles_tmp','Plk050'),fullfile(sampledir,'nctiles'))
-    %movefile(fullfile(interpDir,'nctiles_tmp','Chl050'),fullfile(sampledir,'nctiles'))
-    %movefile(fullfile(interpDir,'nctiles_tmp'),fullfile(dirOutput,'nctiles'))
 end
