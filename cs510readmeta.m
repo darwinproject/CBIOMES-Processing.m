@@ -1,4 +1,4 @@
-function [dims,prec,tiles]=cs510readmeta(dirMeta);
+function [dims,prec,tiles,fldList]=cs510readmeta(dirMeta);
 %[dims,prec,tiles]=cs510readmeta(dirMeta);
 
 %%read lines
