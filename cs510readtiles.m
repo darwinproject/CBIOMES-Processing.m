@@ -1,8 +1,19 @@
 function [fld]=cs510readtiles(dirIn,filIn,iStep,iFld);
 %[fld]=cs510readtiles(dirIn,filIn,iStep,iFld);
 %e.g. [fld]=cs510readtiles('ptr/','_',72,21);
+%e.g. [fld]=cs510readtiles('ptr/','_',72,'TRAC21')
 
-[dims,prec,tiles]=cs510readmeta(dirIn);
+if isa(iFld,'char')
+    [dims,prec,tiles,fldList]=cs510readmeta(dirIn);
+    fldname = iFld;
+    fmtstr = ['%-' num2str(length(fldList{1})) 's'];
+    iFld = find(strcmp(fldList,sprintf(fmtstr,fldname)));
+    if isempty(iFld)
+        error(['Field ' fldname ' is not listed in the metadata file.'])
+    end
+else
+    [dims,prec,tiles]=cs510readmeta(dirIn);
+end
 n1=tiles(1,2);
 n2=tiles(1,4);
 n3=dims(3);
