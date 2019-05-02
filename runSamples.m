@@ -14,8 +14,10 @@ diagnosticFile = fullfile(sampledir,'doc/available_diagnostics.log');
 readmeFile = fullfile(sampledir,'README.md');
 dirGrid = [fullfile(sampledir,sampleType,'grid') filesep];
 dirOutput = [fullfile(sampledir,sample,'output') filesep];
+
 interpDir = [fullfile(sampledir,sample,'diags_interp')  filesep];
 nctileDir = [fullfile(sampledir,sample,'nctiles') filesep];
+
 selectFld = {'TRAC21'};
 
 % Time Units
@@ -23,7 +25,9 @@ timeUntis = 'days since 1992-1-1 0:0:0';
 dateStart = [1992 1 1];
 
 % Which part of processing to do
+
 doInterp = 1; doInterpForce = 1;
+
 doNCtiles = 1;
 
 switch sampleType
@@ -105,12 +109,14 @@ if doInterp
                     if ~exist(fullfile(interpDir,listInterp{j}),'dir')
                         mkdir(fullfile(interpDir,listInterp{j}));
                     end
+
 %                     iPtr = str2double(listInterp{j}(end-1:end));
 %                     if isnan(iPtr)
 %                         iPtr = 100 + 10*(double(listInterp{j}(end-1))-48) + double(listInterp{j}(end-1))-96;
 %                     end
                     fldfname = strjoin(fparts(1:2),'.');
                     fld = cs510readtiles(dirOutput,outputPrefix,iStep,listInterp{j});
+
                     %process2interp(dirOutput,outputPrefix,'',interpDir,diagnosticFile,listInterp(j),fld,fldfname);
                     process2interp(dirOutput,outputPrefix,listInterp(j),fld,fldfname);
                     
