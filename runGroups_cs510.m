@@ -3,10 +3,10 @@ clear all
 
 
 % Put tools on path
-p = genpath([pwd '/../tools']);
+p = genpath([pwd '/../../tools/']);
 addpath(p);
 
-setup_pathsflds
+setup_pathsflds_cs510
 
 switch sampleType
     case 'sample1'
@@ -54,6 +54,16 @@ else
     prefix = outputPrefix;
 end
 
+if ~isempty(getenv('SLURM_ARRAY_TASK_ID')) % In slurm job array to parallelize selectFld
+        taskID = str2num(getenv('SLURM_ARRAY_TASK_ID'));
+        numTasks = str2num(getenv('SLURM_ARRAY_TASK_COUNT'));
+
+        myidx = taskID:numTasks:nsteps;
+	dirOutput_pat = strrep(dirOutput_pat,'sample',['sample_' num2str(taskID)]);
+    else
+        myidx = 1:nsteps;
+    end
+
 % Move inter_precomputed.mat into diags_interp_tmp
 interptmpdir = fullfile(dirOutput,'diags_interp_tmp');
 if ~exist(interptmpdir,'dir'); mkdir(interptmpdir); end
@@ -65,7 +75,13 @@ if ~exist(fullfile(interptmpdir,'interp_precomputed.mat'))
 end
 
 for i = 1:height(fldTbl)
-    
+    linkDir = strrep(linkDir_pat,'sample',fldTbl.source{i});
+    dirOutput = strrep(dirOutput_pat,'sample',fldTbl.source{i});
+    if ~exist(dirOutput,'dir')
+       mkdir(dirOutput)
+       system(['ln -l ' linkDir ' ' dirOutput filesep fldTbl.source{i}])
+    end
+    system(['cp ' linkDir '/*.meta ' dirOutput])
     interpDir = strrep(interpDir_pat,'group',fldTbl.group_name{i});
     fldname = fldTbl.field{i};
     disp(['Processing ' fldname])
@@ -73,7 +89,6 @@ for i = 1:height(fldTbl)
     if strcmp(sampleType,'cs510') || strcmp(sampleType,'sample3')
         
         % Do the interpolation
-        linkDir = strrep(linkDir_pat,'sample',fldTbl.source{i});
         fnames = dir(fullfile(linkDir,[subdirPrefix '0000'],[outputPrefix '*.data']));
         
         if ~isempty(fldTbl.sourcefields{i})
@@ -95,7 +110,7 @@ for i = 1:height(fldTbl)
             mkdir(fullfile(interpDir,fldname));
         end
         
-        for t = 1:nsteps
+        for t = myidx
             
             fparts = strsplit(fnames(t).name,'.');
             iStep = str2double(fparts{2});
@@ -111,13 +126,13 @@ for i = 1:height(fldTbl)
                     
                     % Calculate new field
                     if strcmp(lower(fldTbl.operation{i}),'sum')
-                        fld = sumflds(linkDir,prefix,iStep,sourcefields);
+                        fld = calcSum(linkDir,prefix,iStep,sourcefields);
                     elseif strcmp(lower(fldTbl.operation{i}),'shannon')
                         fld = calcShannon(linkDir,prefix,iStep,sourcefields);
                     elseif strcmp(lower(fldTbl.operation{i}),'top50avebiomass')
                         [biomass0to50ave,chl0to50ave] = calcTop50AveBiomass(linkDir,prefix,iStep);
                     elseif strcmp(lower(fldTbl.operation{i}),'integral-full')
-                        fld = integralFull(linkDir,prefix,iStep,sourcefields);
+                        fld = calcIntegralFull(linkDir,prefix,iStep,sourcefields);
                     else
                         disp(['Unsupported operation ' fldTbl.operation{i}])
                     end
@@ -137,7 +152,7 @@ for i = 1:height(fldTbl)
                 disp(['Interpolating ' fldname])
                 process2interp(dirOutput,outputPrefix,{fldname},fld,fldfname);
                 
-                system(['mv ' dirOutput filesep 'diags_interp_tmp/' fldname '/* ' fullfile(interpDir,fldname)])
+                system(['mv ' dirOutput filesep 'diags_interp_tmp/' fldname '/* ' fullfile(interpDir,fldname)]);
             else
                 disp(['skipping ' fnames(t).name])
             end

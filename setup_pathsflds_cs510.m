@@ -191,7 +191,7 @@ group(4).source = 'surf';
 group(4).newfld = {};
 
 % Combine into a table for easy iteration
-fldTbl = table('Size',[0 11],'VariableNames',{'group','group_name','field','source','sourcefields','operation','levs','mate','code','units','title'},...
+fldTbl = table('Size',[0,11],'VariableNames',{'group','group_name','field','source','sourcefields','operation','levs','mate','code','units','title'},...
     'VariableTypes',{'double','cellstr','cellstr','cellstr','cellstr','cellstr','double','double','cellstr','cellstr','cellstr'});
 
 for i = 1:length(group)
