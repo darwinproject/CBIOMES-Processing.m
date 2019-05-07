@@ -16,8 +16,17 @@ else
 end
 n1=tiles(1,2);
 n2=tiles(1,4);
-n3=dims(3);
-recl3D=n1*n2*n3*4;
+if length(dims) == 3
+    n3=dims(3);
+    recl3D=n1*n2*n3*4;
+    shape = [n1 n2 n3];
+    numels = n1*n2*n3;
+else
+    recl3D=n1*n2*4;
+    shape = [n1 n2];
+    numels = n1*n2;
+end
+
 if strcmp(prec,'float64'); recl3D=2*recl3D; end;
 
 fld=zeros(dims);
@@ -27,7 +36,7 @@ for iTile=1:size(tiles,1);
   %
   fid=fopen([fil.folder filesep fil.name],'r','b');
   status=fseek(fid,(iFld-1)*recl3D,'bof');
-  tmp=reshape(fread(fid,n1*n2*n3,prec),[n1 n2 n3]);
+  tmp=reshape(fread(fid,numels,prec),shape);
   tmp(tmp==0)=NaN;
   fclose(fid);
   %
