@@ -55,33 +55,36 @@ else
 end
 
 if ~isempty(getenv('SLURM_ARRAY_TASK_ID')) % In slurm job array to parallelize selectFld
-        taskID = str2num(getenv('SLURM_ARRAY_TASK_ID'));
-        numTasks = str2num(getenv('SLURM_ARRAY_TASK_COUNT'));
-
-        myidx = taskID:numTasks:nsteps;
-	dirOutput_pat = strrep(dirOutput_pat,'sample',['sample_' num2str(taskID)]);
-    else
-        myidx = 1:nsteps;
-    end
-
-% Move inter_precomputed.mat into diags_interp_tmp
-interptmpdir = fullfile(dirOutput,'diags_interp_tmp');
-if ~exist(interptmpdir,'dir'); mkdir(interptmpdir); end
-if ~exist(fullfile(interptmpdir,'interp_precomputed.mat'))
-    interpPrecomp = fullfile(precomp_interp_dir,'interp_precomputed.mat');
-    if exist(interpPrecomp,'file')
-        copyfile(interpPrecomp,[interptmpdir filesep]);
-    end
+    taskID = str2num(getenv('SLURM_ARRAY_TASK_ID'));
+    numTasks = str2num(getenv('SLURM_ARRAY_TASK_COUNT'));
+    dirOutput_pat = strrep(dirOutput_pat,'sample',['sample_' num2str(taskID)]);
+else
+    taskID = 1;
+    numTasks = 1;
 end
+    
+
+
 
 for i = 1:height(fldTbl)
     linkDir = strrep(linkDir_pat,'sample',fldTbl.source{i});
     dirOutput = strrep(dirOutput_pat,'sample',fldTbl.source{i});
     if ~exist(dirOutput,'dir')
        mkdir(dirOutput)
-       system(['ln -l ' linkDir ' ' dirOutput filesep fldTbl.source{i}])
+       system(['ln -s ' linkDir ' ' dirOutput filesep fldTbl.source{i}]);
     end
-    system(['cp ' linkDir '/*.meta ' dirOutput])
+    
+    % Move inter_precomputed.mat into diags_interp_tmp
+    interptmpdir = fullfile(dirOutput,'diags_interp_tmp');
+    if ~exist(interptmpdir,'dir'); mkdir(interptmpdir); end
+    if ~exist(fullfile(interptmpdir,'interp_precomputed.mat'))
+        interpPrecomp = fullfile(precomp_interp_dir,'interp_precomputed.mat');
+        if exist(interpPrecomp,'file')
+            copyfile(interpPrecomp,[interptmpdir filesep]);
+        end
+    end
+    
+    system(['cp ' linkDir '/*.meta ' dirOutput]);
     interpDir = strrep(interpDir_pat,'group',fldTbl.group_name{i});
     fldname = fldTbl.field{i};
     disp(['Processing ' fldname])
@@ -90,6 +93,7 @@ for i = 1:height(fldTbl)
         
         % Do the interpolation
         fnames = dir(fullfile(linkDir,[subdirPrefix '0000'],[outputPrefix '*.data']));
+        
         
         if ~isempty(fldTbl.sourcefields{i})
             sourcefields = fldTbl.sourcefields{i};
@@ -109,6 +113,18 @@ for i = 1:height(fldTbl)
         if ~exist(fullfile(interpDir,fldname),'dir')
             mkdir(fullfile(interpDir,fldname));
         end
+        
+        fnames_done = dir([interpDir fldname filesep '*.meta']);
+        
+        for j = 1:length(fnames_done)
+            fname_done = strrep(strrep(fnames_done(j).name,'.meta',''),fldname,'_');
+            idx_done = contains({fnames.name},strrep(strrep(fnames_done(j).name,'.meta',''),fldname,'_'));
+            disp(['Skipping ' fnames(idx_done).name])
+            fnames(idx_done)=[];
+        end
+        nsteps = length(fnames);
+        
+        myidx = taskID:numTasks:nsteps;
         
         for t = myidx
             
@@ -161,129 +177,35 @@ for i = 1:height(fldTbl)
     end
     
 end
+
+% %% Determine time series
 % 
-% 
-% 
-% %% Calculate Additional Fields
-% 
-% if doInterp
-%     if strcmp(sampleType,'sample3')
-%         fnames = dir(fullfile(dirOutput,[subdirPrefix '0000'],[outputPrefix '*.data'])); % get filenames from one directory to determine time steps
-%         prefix = subdirPrefix;
-%     else
-%         fnames = dir(fullfile(dirOutput,[outputPrefix '*.data']));
-%         prefix = outputPrefix;
-%     end
-%     
-%     interptmpdir = fullfile(dirOutput,'diags_interp_tmp');
-%     if ~exist(interptmpdir,'dir'); mkdir(interptmpdir); end
-%     if ~exist(fullfile(interptmpdir,'interp_precomputed.mat'))
-%         interpPrecomp = fullfile(precomp_interp_dir,'interp_precomputed.mat');
-%         if exist(interpPrecomp,'file')
-%             copyfile(interpPrecomp,[interptmpdir filesep]);
-%         end
-%     end
-%     selectFld = {};
-%     for j = 1:length(newfld)
-%         rename = newfld(j).rename;
-%         sumFlds = newfld(j).sumFlds;
-%         levs = newfld(j).levs;
-%         mate = newfld(j).mate;
-%         code = newfld(j).code;
-%         units = newfld(j).units;
-%         title = newfld(j).title;
-%         
-%         % Add to Diags
-%         fldname = addLineAvailDiag(diagnosticFile, rename, levs, mate, code, units, title);
-%         selectFld = [selectFld fldname];
-%         
-%         disp(['Calculating and interpolating ' fldname])
-%         
-%         nsteps = length(fnames);
-%         
-%         if ~isempty(getenv('SLURM_ARRAY_TASK_ID')) % In slurm job array to parallelize selectFld
-%             taskID = getenv('SLURM_ARRAY_TASK_ID');
-%             numTasks = getenv('SLURM_ARRAY_TASK_COUNT');
-%             
-%             myidx = taskID:numTasks:nsteps;
-%         else
-%             myidx = 1:nsteps;
-%         end
-%         
-%         for i = myidx
-%             
-%             fparts = strsplit(fnames(i).name,'.');
-%             
-%             if isempty(dir([interpDir rename filesep '*' fparts{2} '.meta'])) || doInterpForce % Skip if already interpolated
-%                 
-%                 iStep = str2double(fparts{2});
-%                 savename = strjoin(fparts(1:2),'.');
-%                 %fldsum = sumflds(dirOutput,prefix,iStep,sumFlds);
-%                 fldsum = calcShannon(dirOutput,prefix,iStep,sumFlds);
-%                 %[biomass0to50ave,chl0to50ave] = calcTop50AveBiomass(dirOutput,prefix,iStep);
-%                 
-%                 % Save to Output
-%                 if ~isdir(dirNewFld); mkdir(dirNewFld); end;
-%                 [dims,prec,tiles]=cs510readmeta(dirOutput);
-%                 
-%                 %write binary field (masked)
-%                 write2file(fullfile(dirNewFld,[savename '.' rename '.data']),convert2vector(fldsum),32,0);
-%                 
-%                 %create meta file
-%                 write2meta(fullfile(dirNewFld,[savename '.' rename '.data']),dims(1:3),32,{rename});
-%                 
-%                 % Interpolate
-%                 fldfname = strjoin(fparts(1:2),'.');
-%                 process2interp(dirOutput,outputPrefix,{rename},fldsum,fldfname);
-%                 
-%                 if ~exist(fullfile(interpDir,rename),'dir'); mkdir(fullfile(interpDir,rename)); end
-%                 
-%                 system(['mv ' dirOutput filesep 'diags_interp_tmp/' rename '/* ' fullfile(interpDir,rename)]);
-%             else
-%                 disp(['skipping ' fnames(i).name])
-%             end
-%         end
-%     end
-%     
-%     clear fldsum
-%     
-%     % Rename completed interpolated files directory
-%     movefile(fullfile(dirOutput,'diags_interp_tmp'),interpDir)
-%     
+% if timeInterval == 30 %monthly
+%     tim=[dateStart(1)*ones(nsteps,1) dateStart(2)+[0:nsteps-1]' 15*ones(nsteps,1)];
+%     timeVec=datenum(tim)-datenum(dateStart);
 % else
-%     
-%     fldname = addLineAvailDiag(diagnosticFile, rename, levs, mate, code, units, title);
-%     selectFld = {fldname};
+%     %timeVec = 1:nsteps;
+%     timeVec = timeInterval*(1:nsteps);
 % end
-
-%% Determine time series
-
-if timeInterval == 30 %monthly
-    tim=[dateStart(1)*ones(nsteps,1) dateStart(2)+[0:nsteps-1]' 15*ones(nsteps,1)];
-    timeVec=datenum(tim)-datenum(dateStart);
-else
-    %timeVec = 1:nsteps;
-    timeVec = timeInterval*(1:nsteps);
-end
-
-addTime(timeVec,timeUntis);
-
-%% Write Interp to NCtiles
-
-if doNCtiles
-    
-    copyfile(diagnosticFile,interpDir);
-    
-    if ~exist(fullfile(interpDir,'README'),'file')
-        copyfile(readmeFile,fullfile(interpDir,'README'));
-    end
-    
-    
-    interp2nctiles(interpDir,selectFld);
-    
-    for i = 1:length(selectFld)
-        system(['mv ' fullfile(interpDir,'nctiles_tmp',selectFld{i}) ' ' nctileDir '/']);
-    end
-    
-    
-end
+% 
+% addTime(timeVec,timeUnits);
+% 
+% %% Write Interp to NCtiles
+% 
+% if doNCtiles
+%     
+%     copyfile(diagnosticFile,interpDir);
+%     
+%     if ~exist(fullfile(interpDir,'README'),'file')
+%         copyfile(readmeFile,fullfile(interpDir,'README'));
+%     end
+%     
+%     
+%     interp2nctiles(interpDir,selectFld);
+%     
+%     for i = 1:length(selectFld)
+%         system(['mv ' fullfile(interpDir,'nctiles_tmp',selectFld{i}) ' ' nctileDir '/']);
+%     end
+%     
+%     
+% end
