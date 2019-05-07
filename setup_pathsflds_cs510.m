@@ -30,7 +30,7 @@ doInterpForce = 0;
 group(1).name = 'Nutrients';
 
 % Fields
-group(1).fields = {'TRAC05','TRAC07','TRAC06'};
+group(1).fields = {'TRAC05','TRAC07','TRAC06','TRAC19'};
 group(1).source = 'ptr';
 
 % DIN
