@@ -1,4 +1,4 @@
-function shannon = calcShannon(dirName,prefix,iStep,fldList)
+function shannon = calcShannon(dirName,totalDir,totalName,prefix,iStep,fldList)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -15,28 +15,30 @@ end
 %load grid
 gcmfaces_global;
 
-%Sum Fields
-if filIsDir
-    if iscell(fldList)
-        fldsum=cs510readtiles(dirName,'_',iStep,fldList{1});
-    else
-        fldsum=cs510readtiles(dirName,'_',iStep,fldList(1));
-    end
-else
-    fldsum = read_bin(fullfile(dirName,fil),fldList(1));
-end
-for itr=2:length(fldList)
-    if filIsDir
-        if iscell(fldList)
-            fld = cs510readtiles(dirName,'_',iStep,fldList{itr});
-        else
-            fld=cs510readtiles(dirName,'_',iStep,fldList(itr));
-        end
-    else
-        fld = read_bin(fullfile(dirName,fil),itr);
-    end
-    fldsum=fldsum+fld;
-end
+fldsum = read_bin(fullfile(totalDir,sprintf(['_.%010d.' totalName '.data'],iStep)));
+
+% %Sum Fields
+% if filIsDir
+%     if iscell(fldList)
+%         fldsum=cs510readtiles(dirName,'_',iStep,fldList{1});
+%     else
+%         fldsum=cs510readtiles(dirName,'_',iStep,fldList(1));
+%     end
+% else
+%     fldsum = read_bin(fullfile(dirName,fil),fldList(1));
+% end
+% for itr=2:length(fldList)
+%     if filIsDir
+%         if iscell(fldList)
+%             fld = cs510readtiles(dirName,'_',iStep,fldList{itr});
+%         else
+%             fld=cs510readtiles(dirName,'_',iStep,fldList(itr));
+%         end
+%     else
+%         fld = read_bin(fullfile(dirName,fil),itr);
+%     end
+%     fldsum=fldsum+fld;
+% end
 
 
 

@@ -85,7 +85,7 @@ group(2).newfld(3).units= 'mg C/';% field units for this diagnostic
 group(2).newfld(3).title= 'Total Zooplankton Concentration';% field description for this diagnostic (max 80 characters)
 
 % Shannon Index Phytoplankton
-group(2).newfld(4).flds = 56:71;
+group(2).newfld(4).flds = 21:55;
 group(2).newfld(4).source = 'ptr';
 group(2).newfld(4).operation = 'shannon';
 group(2).newfld(4).rename = 'PhyShann';
@@ -104,7 +104,7 @@ group(2).newfld(5).levs = 1;
 group(2).newfld(5).mate = [];
 group(2).newfld(5).code = 'SM P    M1';% parser code for this diagnostic
 group(2).newfld(5).units= 'mmol C/m^3/s ';% field units for this diagnostic
-group(2).newfld(5).title= '';% field description for this diagnostic (max 80 characters)
+group(2).newfld(5).title= 'Primary Production full depth integral';% field description for this diagnostic (max 80 characters)
 
 
 %% Group 3

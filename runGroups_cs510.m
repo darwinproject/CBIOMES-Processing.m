@@ -63,9 +63,6 @@ else
     numTasks = 1;
 end
     
-
-
-
 for i = 1:height(fldTbl)
     linkDir = strrep(linkDir_pat,'sample',fldTbl.source{i});
     dirOutput = strrep(dirOutput_pat,'sample',fldTbl.source{i});
@@ -140,11 +137,14 @@ for i = 1:height(fldTbl)
                     disp(['Creating ' fldname])
                     savename = strjoin(fparts(1:2),'.');
                     
+                    dirNewFld = strrep(dirNewFld_pat,'sample',group(1).source);
+                    
                     % Calculate new field
+                    tic
                     if strcmp(lower(fldTbl.operation{i}),'sum')
                         fld = calcSum(linkDir,prefix,iStep,sourcefields);
                     elseif strcmp(lower(fldTbl.operation{i}),'shannon')
-                        fld = calcShannon(linkDir,prefix,iStep,sourcefields);
+                        fld = calcShannon(linkDir,dirNewFld,'PhyTotal',prefix,iStep,sourcefields);
                     elseif strcmp(lower(fldTbl.operation{i}),'top50avebiomass')
                         [biomass0to50ave,chl0to50ave] = calcTop50AveBiomass(linkDir,prefix,iStep);
                     elseif strcmp(lower(fldTbl.operation{i}),'integral-full')
@@ -152,9 +152,9 @@ for i = 1:height(fldTbl)
                     else
                         disp(['Unsupported operation ' fldTbl.operation{i}])
                     end
+                    toc
                     
                     % Save to Output
-                    dirNewFld = strrep(dirNewFld_pat,'sample',group(1).source);
                     if ~isdir(dirNewFld); mkdir(dirNewFld); end
                     [dims,prec,tiles]=cs510readmeta(linkDir);
                     
