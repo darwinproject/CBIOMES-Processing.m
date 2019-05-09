@@ -59,7 +59,7 @@ group(2).newfld(1).rename = 'ChlTotal';
 group(2).newfld(1).levs = 50;
 group(2).newfld(1).mate = [];
 group(2).newfld(1).code = 'SMR     MR';% parser code for this diagnostic
-group(2).newfld(1).units= 'mg Chl';% field units for this diagnostic
+group(2).newfld(1).units= 'mg Chl/m^3';% field units for this diagnostic
 group(2).newfld(1).title= 'Total Chl Concentration';% field description for this diagnostic (max 80 characters)
 
 % Total Phyto Biomass
@@ -70,7 +70,7 @@ group(2).newfld(2).rename = 'PhyTotal';
 group(2).newfld(2).levs = 50;
 group(2).newfld(2).mate = [];
 group(2).newfld(2).code = 'SMR     MR';% parser code for this diagnostic
-group(2).newfld(2).units= 'mg C/';% field units for this diagnostic
+group(2).newfld(2).units= 'mmol C/m^3';% field units for this diagnostic
 group(2).newfld(2).title= 'Total Phytoplankton Concentration';% field description for this diagnostic (max 80 characters)
 
 % Total Zooplankton Biomass
@@ -81,7 +81,7 @@ group(2).newfld(3).rename = 'ZooTotal';
 group(2).newfld(3).levs = 50;
 group(2).newfld(3).mate = [];
 group(2).newfld(3).code = 'SMR     MR';% parser code for this diagnostic
-group(2).newfld(3).units= 'mg C/';% field units for this diagnostic
+group(2).newfld(3).units= 'mmol C/m^3';% field units for this diagnostic
 group(2).newfld(3).title= 'Total Zooplankton Concentration';% field description for this diagnostic (max 80 characters)
 
 % Shannon Index Phytoplankton
@@ -92,7 +92,7 @@ group(2).newfld(4).rename = 'PhyShann';
 group(2).newfld(4).levs = 50;
 group(2).newfld(4).mate = [];
 group(2).newfld(4).code = 'SMR     MR';% parser code for this diagnostic
-group(2).newfld(4).units= '??';% field units for this diagnostic
+group(2).newfld(4).units= '';% field units for this diagnostic
 group(2).newfld(4).title= 'Phytoplankton diversity (shannon index)';% field description for this diagnostic (max 80 characters)
 
 % Primary Production- Full depth Integral
@@ -103,7 +103,7 @@ group(2).newfld(5).rename = 'PPfull';
 group(2).newfld(5).levs = 1;
 group(2).newfld(5).mate = [];
 group(2).newfld(5).code = 'SM P    M1';% parser code for this diagnostic
-group(2).newfld(5).units= 'mmol C/m^3/s ';% field units for this diagnostic
+group(2).newfld(5).units= 'mmol C/m^2/s ';% field units for this diagnostic
 group(2).newfld(5).title= 'Primary Production full depth integral';% field description for this diagnostic (max 80 characters)
 
 
@@ -122,7 +122,7 @@ group(3).newfld(1).rename = 'PicoPro';
 group(3).newfld(1).levs = 50;
 group(3).newfld(1).mate = [];
 group(3).newfld(1).code = 'SMR     MR';% parser code for this diagnostic
-group(3).newfld(1).units= 'mg C/';% field units for this diagnostic
+group(3).newfld(1).units= 'mmol C/m^3';% field units for this diagnostic
 group(3).newfld(1).title= 'Total Pico-Prokaryote Concentration';% field description for this diagnostic (max 80 characters)
 
 % Pico-eukaryote biomass 
@@ -133,7 +133,7 @@ group(3).newfld(2).rename = 'PicoEu';
 group(3).newfld(2).levs = 50;
 group(3).newfld(2).mate = [];
 group(3).newfld(2).code = 'SMR     MR';% parser code for this diagnostic
-group(3).newfld(2).units= 'mg C/';% field units for this diagnostic
+group(3).newfld(2).units= 'mmol C/m^3';% field units for this diagnostic
 group(3).newfld(2).title= 'Total Pico-Eukaryote Concentration';% field description for this diagnostic (max 80 characters)
 
 % Coccolithophore biomass 
@@ -144,7 +144,7 @@ group(3).newfld(3).rename = 'Cocco';
 group(3).newfld(3).levs = 50;
 group(3).newfld(3).mate = [];
 group(3).newfld(3).code = 'SMR     MR';% parser code for this diagnostic
-group(3).newfld(3).units= 'mg C/';% field units for this diagnostic
+group(3).newfld(3).units= 'mmol C/m^3';% field units for this diagnostic
 group(3).newfld(3).title= 'Total Coccolithophore Concentration';% field description for this diagnostic (max 80 characters)
 
 % Diazotroph biomass 
@@ -155,7 +155,7 @@ group(3).newfld(4).rename = 'Diazo';
 group(3).newfld(4).levs = 50;
 group(3).newfld(4).mate = [];
 group(3).newfld(4).code = 'SMR     MR';% parser code for this diagnostic
-group(3).newfld(4).units= 'mg C/';% field units for this diagnostic
+group(3).newfld(4).units= 'mmol C/m^3';% field units for this diagnostic
 group(3).newfld(4).title= 'Total Diazotroph Concentration';% field description for this diagnostic (max 80 characters)
 
 % Diatom biomass 
@@ -166,7 +166,7 @@ group(3).newfld(4).rename = 'Diatom';
 group(3).newfld(4).levs = 50;
 group(3).newfld(4).mate = [];
 group(3).newfld(4).code = 'SMR     MR';% parser code for this diagnostic
-group(3).newfld(4).units= 'mg C/';% field units for this diagnostic
+group(3).newfld(4).units= 'mmol C/m^3';% field units for this diagnostic
 group(3).newfld(4).title= 'Total Diatom Concentration';% field description for this diagnostic (max 80 characters)
 
 % Mixotrophic dinoflagellate biomass 
@@ -177,7 +177,7 @@ group(3).newfld(5).rename = 'MixDino';
 group(3).newfld(5).levs = 50;
 group(3).newfld(5).mate = [];
 group(3).newfld(5).code = 'SMR     MR';% parser code for this diagnostic
-group(3).newfld(5).units= 'mg C/';% field units for this diagnostic
+group(3).newfld(5).units= 'mmol C/m^3';% field units for this diagnostic
 group(3).newfld(5).title= 'Total Mixotrophic dinoflagellate concentration';% field description for this diagnostic (max 80 characters)
 
 %% Group 4
