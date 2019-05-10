@@ -1,4 +1,4 @@
-function [fldsum]=sumflds(dirName,prefix,iStep,fldList)
+function [fldsum]=calcSum(dirName,prefix,iStep,fldList)
 %[fld]=cs510readtiles(dirIn,filIn,iStep,iFld);
 %e.g. [fld]=cs510readtiles('ptr/','_',72,21);    
 
@@ -25,29 +25,40 @@ gcmfaces_global;
 
 %select a file / record
 %fil='diags_ptr/ptr_3d_set1.0000000732.data';
-
-%Sum Fields
-if filIsDir
-    if iscell(fldList)
-        fldsum=cs510readtiles(dirName,'_',iStep,fldList{1});
+if ~iscell(fldList)
+    if filIsDir
+        fldsum = cs510readtiles_rangeandsum(dirName,'_',iStep,fldList);
     else
-        fldsum=cs510readtiles(dirName,'_',iStep,fldList(1));
+        fldsum = read_bin(fullfile(dirName,fil),fldList(1));
+        for itr = 2:length(fldList)
+            fld = read_bin(fullfile(dirName,fil),itr);
+            fldsum=fldsum+fld;
+        end
     end
 else
-    fldsum = read_bin(fullfile(dirName,fil),fldList(1));
-end
-for itr=2:length(fldList)
     if filIsDir
         if iscell(fldList)
-            fld = cs510readtiles(dirName,'_',iStep,fldList{itr});
+            fldsum=cs510readtiles(dirName,'_',iStep,fldList{1});
         else
-            fld=cs510readtiles(dirName,'_',iStep,fldList(itr));
+            fldsum=cs510readtiles(dirName,'_',iStep,fldList(1));
         end
     else
-        fld = read_bin(fullfile(dirName,fil),itr);
+        fldsum = read_bin(fullfile(dirName,fil),fldList(1));
     end
-    fldsum=fldsum+fld;
+    for itr=2:length(fldList)
+        if filIsDir
+            if iscell(fldList)
+                fld = cs510readtiles(dirName,'_',iStep,fldList{itr});
+            else
+                fld=cs510readtiles(dirName,'_',iStep,fldList(itr));
+            end
+        else
+            fld = read_bin(fullfile(dirName,fil),itr);
+        end
+        fldsum=fldsum+fld;
+    end
 end
+    
 
 end
 

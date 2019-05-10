@@ -34,7 +34,7 @@ group(1).fields = {'TRAC05','TRAC07','TRAC06','TRAC19'};
 group(1).source = 'ptr';
 
 % DIN
-group(1).newfld(1).flds = {'TRAC04','TRAC03','TRAC02'};
+group(1).newfld(1).flds = 2:4;%{'TRAC04','TRAC03','TRAC02'};
 group(1).newfld(1).source = 'ptr';
 group(1).newfld(1).operation = 'sum';
 group(1).newfld(1).rename = 'DIN';
@@ -115,7 +115,7 @@ group(3).fields = {};
 group(3).source = 'ptr';
 
 % Pico-prokaryote biomass 
-group(3).newfld(1).flds = {'TRAC21','TRAC22'};
+group(3).newfld(1).flds = 21:22;%{'TRAC21','TRAC22'};
 group(3).newfld(1).source = 'ptr';
 group(3).newfld(1).operation = 'sum';
 group(3).newfld(1).rename = 'PicoPro';
@@ -126,7 +126,7 @@ group(3).newfld(1).units= 'mmol C/m^3';% field units for this diagnostic
 group(3).newfld(1).title= 'Total Pico-Prokaryote Concentration';% field description for this diagnostic (max 80 characters)
 
 % Pico-eukaryote biomass 
-group(3).newfld(2).flds = {'TRAC23','TRAC24'};
+group(3).newfld(2).flds = 23:24;%{'TRAC23','TRAC24'};
 group(3).newfld(2).source = 'ptr';
 group(3).newfld(2).operation = 'sum';
 group(3).newfld(2).rename = 'PicoEu';
@@ -137,7 +137,7 @@ group(3).newfld(2).units= 'mmol C/m^3';% field units for this diagnostic
 group(3).newfld(2).title= 'Total Pico-Eukaryote Concentration';% field description for this diagnostic (max 80 characters)
 
 % Coccolithophore biomass 
-group(3).newfld(3).flds = {'TRAC25','TRAC26','TRAC27','TRAC28','TRAC29'};
+group(3).newfld(3).flds = 25:29;%{'TRAC25','TRAC26','TRAC27','TRAC28','TRAC29'};
 group(3).newfld(3).source = 'ptr';
 group(3).newfld(3).operation = 'sum';
 group(3).newfld(3).rename = 'Cocco';
@@ -148,7 +148,7 @@ group(3).newfld(3).units= 'mmol C/m^3';% field units for this diagnostic
 group(3).newfld(3).title= 'Total Coccolithophore Concentration';% field description for this diagnostic (max 80 characters)
 
 % Diazotroph biomass 
-group(3).newfld(4).flds = {'TRAC30','TRAC31','TRAC32','TRAC33','TRAC34'};
+group(3).newfld(4).flds = 30:34;%{'TRAC30','TRAC31','TRAC32','TRAC33','TRAC34'};
 group(3).newfld(4).source = 'ptr';
 group(3).newfld(4).operation = 'sum';
 group(3).newfld(4).rename = 'Diazo';
@@ -159,7 +159,7 @@ group(3).newfld(4).units= 'mmol C/m^3';% field units for this diagnostic
 group(3).newfld(4).title= 'Total Diazotroph Concentration';% field description for this diagnostic (max 80 characters)
 
 % Diatom biomass 
-group(3).newfld(4).flds = {'TRAC35','TRAC36','TRAC37','TRAC38','TRAC39','TRAC40','TRAC41','TRAC42','TRAC43','TRAC44','TRAC45'};
+group(3).newfld(4).flds = 35:45;%{'TRAC35','TRAC36','TRAC37','TRAC38','TRAC39','TRAC40','TRAC41','TRAC42','TRAC43','TRAC44','TRAC45'};
 group(3).newfld(4).source = 'ptr';
 group(3).newfld(4).operation = 'sum';
 group(3).newfld(4).rename = 'Diatom';
@@ -170,7 +170,7 @@ group(3).newfld(4).units= 'mmol C/m^3';% field units for this diagnostic
 group(3).newfld(4).title= 'Total Diatom Concentration';% field description for this diagnostic (max 80 characters)
 
 % Mixotrophic dinoflagellate biomass 
-group(3).newfld(5).flds = {'TRAC46','TRAC47','TRAC48','TRAC49','TRAC50','TRAC51','TRAC52','TRAC53','TRAC54','TRAC55'};
+group(3).newfld(5).flds = 46:55;%{'TRAC46','TRAC47','TRAC48','TRAC49','TRAC50','TRAC51','TRAC52','TRAC53','TRAC54','TRAC55'};
 group(3).newfld(5).source = 'ptr';
 group(3).newfld(5).operation = 'sum';
 group(3).newfld(5).rename = 'MixDino';
