@@ -15,27 +15,37 @@ end
 %load grid
 gcmfaces_global;
 
+%% THIS
+nr = 50;%=max(find(mygrid.RC>-50));
+w50m=mk3D(mygrid.DRF(1:nr),mygrid.mskC(:,:,1:nr));
+w50m=w50m.*mygrid.hFacC(:,:,1:nr);
+tmp1=nansum(w50m,3); 
+w50m=w50m./repmat(tmp1,[1 1 nr]);
+ 
+% Later
+%nansum(fld(:,:,1:nr).*w50m,3);
+
 %Sum Fields
-if filIsDir
-    if iscell(fldList)
-        fld=cs510readtiles(dirName,'_',iStep,fldList{1});
-    else
-        fld=cs510readtiles(dirName,'_',iStep,fldList(1));
-    end
-else
-    fld = read_bin(fullfile(dirName,fil),fldList(1));
-end
-for itr=2:length(fldList)
+fldOut=0*mygrid.RAC;
+% if filIsDir
+%     if iscell(fldList)
+%         fld=cs510readtiles(dirName,'_',iStep,fldList{1});
+%     else
+%         fld=cs510readtiles(dirName,'_',iStep,fldList(1));
+%     end
+% else
+%     fld = read_bin(fullfile(dirName,fil),fldList(1));
+% end
+for itr=1:length(fldList)
     if filIsDir
         if iscell(fldList)
-            fld = fld + cs510readtiles(dirName,'_',iStep,fldList{itr});
+            fld = cs510readtiles(dirName,'_',iStep,fldList{itr});
         else
-            fld = fld + cs510readtiles(dirName,'_',iStep,fldList(itr));
+            fld = cs510readtiles(dirName,'_',iStep,fldList(itr));
         end
     else
-        fld = fld + read_bin(fullfile(dirName,fil),itr);
+        fld = read_bin(fullfile(dirName,fil),itr);
     end
+    fldOut=fldOut+nansum(fld(:,:,1:nr).*w50m,3);
 end
-
-fldOut = nansum(fld,3);
 
