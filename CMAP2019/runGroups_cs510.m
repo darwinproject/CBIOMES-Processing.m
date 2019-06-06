@@ -32,8 +32,6 @@ selectFld = {};
 %% Read in the Grid
 disp('Reading in the grid')
 
-%dirGrid = [fullfile(sampledir,sample,'grid') filesep];
-
 gcmfaces_global;
 if isempty(mygrid)
     fprintf(['loading grid from ' dirGrid '\n']);
@@ -194,35 +192,3 @@ for i = 1:height(fldTbl)
     end
     
 end
-
-% %% Determine time series
-% 
-% if timeInterval == 30 %monthly
-%     tim=[dateStart(1)*ones(nsteps,1) dateStart(2)+[0:nsteps-1]' 15*ones(nsteps,1)];
-%     timeVec=datenum(tim)-datenum(dateStart);
-% else
-%     %timeVec = 1:nsteps;
-%     timeVec = timeInterval*(1:nsteps);
-% end
-% 
-% addTime(timeVec,timeUnits);
-% 
-% %% Write Interp to NCtiles
-% 
-% if doNCtiles
-%     
-%     copyfile(diagnosticFile,interpDir);
-%     
-%     if ~exist(fullfile(interpDir,'README'),'file')
-%         copyfile(readmeFile,fullfile(interpDir,'README'));
-%     end
-%     
-%     
-%     interp2nctiles(interpDir,selectFld);
-%     
-%     for i = 1:length(selectFld)
-%         system(['mv ' fullfile(interpDir,'nctiles_tmp',selectFld{i}) ' ' nctileDir '/']);
-%     end
-%     
-%     
-% end
