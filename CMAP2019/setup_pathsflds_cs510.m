@@ -48,8 +48,8 @@ group(1).newfld(1).title= 'Sum of NO3, NO2, NH4';% field description for this di
 group(2).name = 'Bulk_Ecosystem_Characteristcs';
 
 % Fields
-group(2).fields = {};
-group(2).source = 'ptr';
+group(2).fields = {'PP'};
+group(2).source = 'gud';
 
 % Total Chl
 group(2).newfld(1).flds = 72:106;

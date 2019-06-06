@@ -85,6 +85,15 @@ for i = 1:height(fldTbl)
     interpDir = strrep(interpDir_pat,'group',fldTbl.group_name{i});
     fldname = fldTbl.field{i};
     disp(['Processing ' fldname])
+    
+    % Remove any leftover potentially half-formed files
+    if ~isempty(dir(fullfile(dirOutput,'diags_interp_tmp',fldname,'*.data')))
+        system(['rm ' fullfile(dirOutput,'diags_interp_tmp',fldname,'*.data')])
+    end
+    if ~isempty(dir(fullfile(dirOutput,'diags_interp_tmp',fldname,'*.meta')))
+        system(['rm ' fullfile(dirOutput,'diags_interp_tmp',fldname,'*.meta')])
+    end
+    
     % Interpolate any regular fields
     if strcmp(sampleType,'cs510') || strcmp(sampleType,'sample3')
         
@@ -111,16 +120,24 @@ for i = 1:height(fldTbl)
             mkdir(fullfile(interpDir,fldname));
         end
         
-        fnames_done = dir([interpDir fldname filesep '*.meta']);
-        
-        for j = 1:length(fnames_done)
-            fname_done = strrep(strrep(fnames_done(j).name,'.meta',''),fldname,'_');
-            idx_done = contains({fnames.name},strrep(strrep(fnames_done(j).name,'.meta',''),fldname,'_'));
-            disp(['Skipping ' fnames(idx_done).name])
-            fnames(idx_done)=[];
+        if taskID == 1
+            fnames_done = dir([interpDir fldname filesep '*.meta']);
+
+            for j = 1:length(fnames_done)
+                fname_done = strrep(strrep(fnames_done(j).name,'.meta',''),fldname,'_');
+                idx_done = contains({fnames.name},strrep(strrep(fnames_done(j).name,'.meta',''),fldname,'_'));
+                disp(['Skipping ' fnames(idx_done).name])
+                fnames(idx_done)=[];
+            end
+            
+            nsteps = length(fnames);
+            
+            if ~isempty(getenv('SLURM_ARRAY_TASK_ID'))
+                save([getenv('SLURM_ARRAY_JOB_ID') '_' fldname '_fnames.mat'],'fnames','nsteps');
+            end
+        else
+            load([getenv('SLURM_ARRAY_JOB_ID') '_' fldname '_fnames.mat'])
         end
-        nsteps = length(fnames);
-        
         myidx = taskID:numTasks:nsteps;
         
         for t = myidx
