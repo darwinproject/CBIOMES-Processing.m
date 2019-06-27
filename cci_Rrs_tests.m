@@ -107,6 +107,8 @@ if numTest==1;
         0.00000395 0.00001531 0.00003555 0.00004604 0.00007306 0.00004953;...
         -0.00000186 0.00000087 0.00000708 0.00001733 0.00004953 0.00006542];
 
+    Sinv={}; for ii=1:length(S); Sinv{ii}=inv(S{ii}); end;
+
     ttl='MooreEtAl2009';
 
     %Jackson 2017 version of the Fuzzy logic classifier:
@@ -128,10 +130,12 @@ if numTest==1;
         0.00087 0.00054 0.00063 0.00069 0.00040 0.00028 0.00030 0.00021 0.00030 0.00033 0.00033 0.00206 0.00455 0.00583];
 
     if 0;
-        M={}; S=[];
-        for ii=1:size(J_s,2);
-            M{ii}=J_m(:,ii)';
-            S{ii}=diag(J_s(:,ii).^2);
+        ncload v2.0_class_cov_inv_and_means.nc
+        M={}; S={}; Sinv={};
+        for ii=1:14;
+            Sinv{ii}=squeeze(inverse_covariance(ii,1:6,1:6));
+            S{ii}=inv(Sinv{ii});
+            M{ii}=cluster_means(:,ii)';
         end;
         ttl='JaksonEtAl2017';
     end;
@@ -146,7 +150,7 @@ if numTest==1;
     fuzzyMmbr=NaN*zeros(length(S),1);
     for ii=1:length(S);
         Xi=(Rrs_at_cci-M{ii})';
-        Zi=Xi'*inv(S{ii})*Xi;
+        Zi=Xi'*Sinv{ii}*Xi;
         fuzzyMmbr(ii)=1-chi2cdf(Zi,6);
     end;
     
