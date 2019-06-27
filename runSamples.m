@@ -165,14 +165,6 @@ if doNCtiles
         copyfile(readmeFile,fullfile(interpDir,'README'));
     end
     
-<<<<<<< HEAD
-%     if ischar(selectFld) || strcmp(selectFld,'all')
-%         selectFld=dir(interpDir); selectFld={selectFld(:).name};
-%         jj = cellfun(@(x) contains(x,'TRAC'),selectFld);
-%         selectFld={selectFld{jj}};
-%     end
-=======
->>>>>>> e28bae4a4da5a787707f128c60ce977e9eafa778
     
     interp2nctiles(interpDir,selectFld);
     
