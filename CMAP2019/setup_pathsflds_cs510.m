@@ -21,9 +21,7 @@ nctileDir_pat = [fullfile(sampledir,sampleType,'nctiles','group') filesep];
 timeUnits = 'days since 1992-1-1 0:0:0';
 dateStart = [1992 1 1];
 
-%% Which part of processing to do
-doNCtiles = 0;
-doInterp = 1;
+%% Force interpolation if already done
 doInterpForce = 0;
 
 %% Group 1: Nutrients
@@ -187,10 +185,10 @@ group(4).name = 'Ocean_Color';
 group(4).fields = {'Rirr003','Rirr007'};
 group(4).source = 'surf';
 
-% Pico-prokaryote biomass 
+% No new fields for group 4
 group(4).newfld = {};
 
-% Combine into a table for easy iteration
+%% Combine into a table for easy iteration
 fldTbl = table('Size',[0,11],'VariableNames',{'group','group_name','field','source','sourcefields','operation','levs','mate','code','units','title'},...
     'VariableTypes',{'double','cellstr','cellstr','cellstr','cellstr','cellstr','double','double','cellstr','cellstr','cellstr'});
 

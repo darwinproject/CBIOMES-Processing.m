@@ -1,6 +1,7 @@
 function shannon = calcShannon(dirName,totalDir,totalName,prefix,iStep,fldList)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+%calcShannon Calculates Shannon Index
+%   Calculates Shannon Index: sum_j[(Bj/Btot)*ln(Bj/Btot)] for j = 1:N
+%   Assumes you've already calculated the sum Btot saved in totalDir as totalName
 
 filIsDir = 0;
 
@@ -16,31 +17,6 @@ end
 gcmfaces_global;
 
 fldsum = read_bin(fullfile(totalDir,sprintf(['_.%010d.' totalName '.data'],iStep)));
-
-% %Sum Fields
-% if filIsDir
-%     if iscell(fldList)
-%         fldsum=cs510readtiles(dirName,'_',iStep,fldList{1});
-%     else
-%         fldsum=cs510readtiles(dirName,'_',iStep,fldList(1));
-%     end
-% else
-%     fldsum = read_bin(fullfile(dirName,fil),fldList(1));
-% end
-% for itr=2:length(fldList)
-%     if filIsDir
-%         if iscell(fldList)
-%             fld = cs510readtiles(dirName,'_',iStep,fldList{itr});
-%         else
-%             fld=cs510readtiles(dirName,'_',iStep,fldList(itr));
-%         end
-%     else
-%         fld = read_bin(fullfile(dirName,fil),itr);
-%     end
-%     fldsum=fldsum+fld;
-% end
-
-
 
 if filIsDir
     if iscell(fldList)
@@ -62,7 +38,7 @@ for itr=2:length(fldList)
             p = cs510readtiles(dirName,'_',iStep,fldList{itr})./fldsum;
             
         else
-            p=cs510readtiles(dirName,'_',iStep,fldList(itr))./fldsum;
+            p = cs510readtiles(dirName,'_',iStep,fldList(itr))./fldsum;
         end
         
     else

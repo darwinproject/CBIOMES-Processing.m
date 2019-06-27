@@ -1,6 +1,6 @@
-function fldOut = integralFull(dirName,prefix,iStep,fldList)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+function fldOut = calcIntegralFull(dirName,prefix,iStep,fldList)
+%calcIntegralFull calculates full depth integral of a given field
+%   Calculates full depth integral for fields in fldList, combined into one output
 
 filIsDir = 0;
 
@@ -15,27 +15,14 @@ end
 %load grid
 gcmfaces_global;
 
-%% THIS
-nr = 50;%=max(find(mygrid.RC>-50));
+nr = 50;
 w50m=mk3D(mygrid.DRF(1:nr),mygrid.mskC(:,:,1:nr));
 w50m=w50m.*mygrid.hFacC(:,:,1:nr);
 tmp1=nansum(w50m,3); 
 w50m=w50m./repmat(tmp1,[1 1 nr]);
- 
-% Later
-%nansum(fld(:,:,1:nr).*w50m,3);
 
 %Sum Fields
 fldOut=0*mygrid.RAC;
-% if filIsDir
-%     if iscell(fldList)
-%         fld=cs510readtiles(dirName,'_',iStep,fldList{1});
-%     else
-%         fld=cs510readtiles(dirName,'_',iStep,fldList(1));
-%     end
-% else
-%     fld = read_bin(fullfile(dirName,fil),fldList(1));
-% end
 for itr=1:length(fldList)
     if filIsDir
         if iscell(fldList)

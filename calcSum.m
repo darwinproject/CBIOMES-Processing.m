@@ -1,6 +1,6 @@
 function [fldsum]=calcSum(dirName,prefix,iStep,fldList)
-%[fld]=cs510readtiles(dirIn,filIn,iStep,iFld);
-%e.g. [fld]=cs510readtiles('ptr/','_',72,21);    
+%calcSum calculates sum of a set of fields
+%   Calculates sum of fields in fldList 
 
 filIsDir = 0;
 
@@ -14,17 +14,7 @@ end
 
 %load grid
 gcmfaces_global;
-%grid_load;
 
-%compute weights to perform 0-50m average
-% nr=max(find(mygrid.RC>-50));
-% w50m=mk3D(mygrid.DRF(1:nr),mygrid.mskC(:,:,1:nr));
-% w50m=w50m.*mygrid.hFacC(:,:,1:nr);
-% tmp1=nansum(w50m,3); 
-% w50m=w50m./repmat(tmp1,[1 1 nr]);
-
-%select a file / record
-%fil='diags_ptr/ptr_3d_set1.0000000732.data';
 if ~iscell(fldList)
     if filIsDir
         fldsum = cs510readtiles_rangeandsum(dirName,'_',iStep,fldList);

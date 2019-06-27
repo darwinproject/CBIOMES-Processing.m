@@ -1,7 +1,6 @@
 %% Running Pipeline on sample* directories
 clear all
 
-
 % Put tools on path
 p = genpath([pwd '/../../tools/']);
 addpath(p);
@@ -40,7 +39,7 @@ end
 
 %% Interpolate Groups
 
-% get filenames from one directory to determine time steps
+% get filenames from one directory to determine time steps- for checkpointing
 dirOutput = strrep(dirOutput_pat,'sample',fldTbl.source{1});
 linkDir = strrep(linkDir_pat,'sample',fldTbl.source{1});
 if strcmp(sampleType,'cs510')
@@ -52,7 +51,8 @@ else
     prefix = outputPrefix;
 end
 
-if ~isempty(getenv('SLURM_ARRAY_TASK_ID')) % In slurm job array to parallelize selectFld
+% Setup for Slurm Job Array to run time steps concurrently otherwise will run in serial
+if ~isempty(getenv('SLURM_ARRAY_TASK_ID')) 
     taskID = str2num(getenv('SLURM_ARRAY_TASK_ID'));
     numTasks = str2num(getenv('SLURM_ARRAY_TASK_COUNT'));
     dirOutput_pat = strrep(dirOutput_pat,'sample',['sample_' num2str(taskID)]);
@@ -60,8 +60,11 @@ else
     taskID = 1;
     numTasks = 1;
 end
-    
+
+% Go over table of fields
 for i = 1:height(fldTbl)
+
+    % Set linkDir and dirOutput for field
     linkDir = strrep(linkDir_pat,'sample',fldTbl.source{i});
     dirOutput = strrep(dirOutput_pat,'sample',fldTbl.source{i});
     if ~exist(dirOutput,'dir')
@@ -79,8 +82,10 @@ for i = 1:height(fldTbl)
         end
     end
     
+    % Put a metadata file in dirOutput and set interpDir
     system(['cp ' linkDir '/*.meta ' dirOutput]);
     interpDir = strrep(interpDir_pat,'group',fldTbl.group_name{i});
+
     fldname = fldTbl.field{i};
     disp(['Processing ' fldname])
     
@@ -92,13 +97,12 @@ for i = 1:height(fldTbl)
         system(['rm ' fullfile(dirOutput,'diags_interp_tmp',fldname,'*.meta')])
     end
     
-    % Interpolate any regular fields
+    % Interpolate fields
     if strcmp(sampleType,'cs510') || strcmp(sampleType,'sample3')
         
-        % Do the interpolation
         fnames = dir(fullfile(linkDir,[subdirPrefix '0000'],[outputPrefix '*.data']));
         
-        
+        % Add line to Available Diagnostics file if it isn't already there
         if ~isempty(fldTbl.sourcefields{i})
             sourcefields = fldTbl.sourcefields{i};
             levs = fldTbl.levs{i};
@@ -118,6 +122,7 @@ for i = 1:height(fldTbl)
             mkdir(fullfile(interpDir,fldname));
         end
         
+        % For checkpointing
         if taskID == 1
             fnames_done = dir([interpDir fldname filesep '*.meta']);
 
@@ -136,6 +141,8 @@ for i = 1:height(fldTbl)
         else
             load([getenv('SLURM_ARRAY_JOB_ID') '_' fldname '_fnames.mat'])
         end
+
+        % Set time indices for this task, if serial this is 1:nsteps
         myidx = taskID:numTasks:nsteps;
         
         for t = myidx
@@ -146,6 +153,8 @@ for i = 1:height(fldTbl)
             if isempty(dir([interpDir fldname filesep '*' fparts{2} '.meta'])) || doInterpForce % Skip if already interpolated
                 
                 fldfname = strjoin(fparts(1:2),'.');
+
+                % If this field already exists, read it in, otherwise create it
                 if isempty(fldTbl.sourcefields{i})
                     fld = cs510readtiles(linkDir,outputPrefix,iStep,fldname);
                 else
@@ -180,6 +189,8 @@ for i = 1:height(fldTbl)
                     write2meta(fullfile(dirNewFld,[savename '.' fldname '.data']),dims(1:length(size(fld.f1))),32,{fldname});
                     
                 end
+
+                % Interpolate
                 disp(['Interpolating ' fldname])
                 process2interp(dirOutput,outputPrefix,{fldname},fld,fldfname);
                 
