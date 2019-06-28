@@ -44,3 +44,13 @@ This repository contains prototype workflows, written in Matlab, having to do wi
 - `runSamples.m` demo script to interpolate and create NetCDF files for different types of output formats.
 - `runCalAveBiomass.m` script to calculate Average Biomass for cs510 data, interpolate, and output as NetCDF.
 - `addLineAvailDiag.m` adds line to available_diagnostics.log file.
+- `calcShannon.m` calculates Shannon Index.
+- `calcSum.m` calculates a sum of given fields.
+- `calcIntegralFull.m` calculate full depth integral of a field.
+
+### CMAP2019
+
+These are the scripts used to interpolate the data added to CMAP in Spring 2019
+
+- `runGroups_cs510.m` driver script for calculating new fields, interpolating, and saving to group directories
+- `setup_pathsflds_cs510.m` script that defines which fields to calculate, interpolate, and group

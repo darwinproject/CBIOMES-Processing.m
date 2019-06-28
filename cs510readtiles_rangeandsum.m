@@ -1,19 +1,13 @@
-function [fld]=cs510readtiles(dirIn,filIn,iStep,iFld);
+function [fld]=cs510readtiles_rangeandsum(dirIn,filIn,iStep,fldrange);
 %[fld]=cs510readtiles(dirIn,filIn,iStep,iFld);
 %e.g. [fld]=cs510readtiles('ptr/','_',72,21);
 %e.g. [fld]=cs510readtiles('ptr/','_',72,'TRAC21')
 
-if isa(iFld,'char')
-    [dims,prec,tiles,fldList]=cs510readmeta(dirIn);
-    fldname = iFld;
-    fmtstr = ['%-' num2str(length(fldList{1})) 's'];
-    iFld = find(strcmp(fldList,sprintf(fmtstr,fldname)));
-    if isempty(iFld)
-        error(['Field ' fldname ' is not listed in the metadata file.'])
-    end
-else
-    [dims,prec,tiles]=cs510readmeta(dirIn);
-end
+
+[dims,prec,tiles]=cs510readmeta(dirIn);
+
+numflds = length(fldrange);
+
 n1=tiles(1,2);
 n2=tiles(1,4);
 if length(dims) == 3
@@ -29,6 +23,8 @@ end
 
 if strcmp(prec,'float64'); recl3D=2*recl3D; end;
 
+iFld = fldrange(1);
+
 fld=zeros(dims);
 for iTile=1:size(tiles,1);
   fil=sprintf('res_%04d/%s.%010d',iTile-1,filIn,iStep);
@@ -36,7 +32,11 @@ for iTile=1:size(tiles,1);
   %
   fid=fopen([fil.folder filesep fil.name],'r','b');
   status=fseek(fid,(iFld-1)*recl3D,'bof');
-  tmp=reshape(fread(fid,numels,prec),shape);
+  tmp = fread(fid,numels*numflds,prec);
+  
+  tmp = sum(reshape(tmp,numels,[]),2);
+  
+  tmp=reshape(tmp,shape);
   tmp(tmp==0)=NaN;
   fclose(fid);
   %

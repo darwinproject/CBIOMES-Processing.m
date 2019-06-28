@@ -1,4 +1,4 @@
-function [dims,prec,tiles]=cs510readmeta(dirMeta);
+function [dims,prec,tiles,fldList]=cs510readmeta(dirMeta);
 %[dims,prec,tiles]=cs510readmeta(dirMeta);
 
 %%read lines
@@ -16,7 +16,7 @@ eval(tmp3);
 %%format output
 tiles=reshape(tiles,[7 300]);
 tiles=cell2mat(tiles(3:6,:))';
-dims=reshape(dimList,[3 3]);
+dims=reshape(dimList,3,[]);
 dims=dims(1,:);
 prec=dataprec;
 
