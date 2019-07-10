@@ -6,7 +6,7 @@ The full Pipeline is:
 
 1. Edit `setup_pathsflds_cs510.m` to reflect which fields should be interpolated, calculated, and grouped. This is also where you indicate paths to where the data sits and where the output should be written.
 2. Run `runGroups_cs510.m` (see below for notes on how to run).
-3. Run `makeNCtiles.jl` from CbiomesProcessing.jl.
+3. Run `makencfiles.jl` from CbiomesProcessing.jl.
 
 ## Directory Structure
 
@@ -44,7 +44,7 @@ After running `runGroups_cs510.m` the directory "diags_interp" is added under "d
     - Group2Field2
     - ...
 
-This is the structure that `makeNCfiles.jl` expects when it runs.
+This is the structure that `makencfiles.jl` expects when it runs.
 
 Any newly calculated fields are put with their type at the same level as the symlinks to the original data. For example the upper level `ptr` directory looks like this after `runGroups_cs510.m` is run (here xxx is the roughly the timestep):
 
@@ -76,3 +76,5 @@ This is where you set up the groups. This is done with nested structs. Each grou
 The `runGroups_cs510.m` script is written in such a way that it can be run in serial or as part of a Job Array on a Slurm cluster.  As such, it has checkpointing built in so it can pick up where it left off if terminated early.
 
 You may need to edit the tools path at the top of the script to reflect where this repository and `gcmfaces` are located.
+
+An example Slurm submission script `submit.sh` is provided. Cluster-specific options and commands have been removed (such as partition selection and loading modules). The submission script submits a Job Array with 32 tasks/processes and requests 12GB of RAM per task.
